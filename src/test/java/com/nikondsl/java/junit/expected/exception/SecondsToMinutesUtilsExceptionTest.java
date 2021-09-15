@@ -1,11 +1,11 @@
-package com.roytuts.java.junit.expected.exception;
+package com.nikondsl.java.junit.expected.exception;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.roytuts.utils.LoggingExtension;
-import com.roytuts.utils.Mitigate;
+import com.nikondsl.utils.LoggingExtension;
+import com.nikondsl.utils.Mitigate;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,4 +1,4 @@
-package com.roytuts.utils;
+package com.nikondsl.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.Marker;

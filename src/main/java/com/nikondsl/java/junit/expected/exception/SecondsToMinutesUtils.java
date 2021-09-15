@@ -1,4 +1,4 @@
-package com.roytuts.java.junit.expected.exception;
+package com.nikondsl.java.junit.expected.exception;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
