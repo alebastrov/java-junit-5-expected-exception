@@ -1,6 +1,5 @@
 package com.nikondsl.java.junit.expected.exception;
 
-import com.nikondsl.utils.HideByExceptionClass;
 import com.nikondsl.utils.HideByExceptionMessage;
 import com.nikondsl.utils.LoggingExtension;
 import org.junit.jupiter.api.BeforeAll;
