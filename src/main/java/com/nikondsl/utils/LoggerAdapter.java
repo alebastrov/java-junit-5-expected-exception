@@ -70,7 +70,7 @@ public class LoggerAdapter implements org.slf4j.Logger {
         }
     }
 
-    private Object sanitize(Object arg) {
+    protected Object sanitize(Object arg) {
         if (arg == null) {
             return null;
         }
@@ -89,7 +89,7 @@ public class LoggerAdapter implements org.slf4j.Logger {
         return arg;
     }
 
-    private Object[] getSanitizedCopy(Object[] arguments) {
+    protected Object[] getSanitizedCopy(Object[] arguments) {
         List<Object> result = new ArrayList<>();
         for (Object obj : arguments) {
             if (obj instanceof Exception) {
@@ -151,7 +151,7 @@ public class LoggerAdapter implements org.slf4j.Logger {
      */
     @Override
     public void trace(String msg, Throwable t) {
-        logger.trace(msg, t);
+        logger.trace(msg, sanitize(t));
     }
 
     /**
@@ -243,7 +243,7 @@ public class LoggerAdapter implements org.slf4j.Logger {
      */
     @Override
     public void trace(Marker marker, String msg, Throwable t) {
-        logger.trace(marker, msg, t);
+        logger.trace(marker, msg, sanitize(t));
     }
 
     /**
@@ -322,7 +322,7 @@ public class LoggerAdapter implements org.slf4j.Logger {
      */
     @Override
     public void debug(String msg, Throwable t) {
-        logger.debug(msg, t);
+        logger.debug(msg, sanitize(t));
     }
 
     /**
@@ -396,7 +396,7 @@ public class LoggerAdapter implements org.slf4j.Logger {
      */
     @Override
     public void debug(Marker marker, String msg, Throwable t) {
-        logger.debug(marker, msg, t);
+        logger.debug(marker, msg, sanitize(t));
     }
 
     /**
@@ -475,7 +475,7 @@ public class LoggerAdapter implements org.slf4j.Logger {
      */
     @Override
     public void info(String msg, Throwable t) {
-        logger.info(msg, t);
+        logger.info(msg, sanitize(t));
     }
 
     /**
@@ -548,7 +548,7 @@ public class LoggerAdapter implements org.slf4j.Logger {
      */
     @Override
     public void info(Marker marker, String msg, Throwable t) {
-        logger.info(marker, msg, t);
+        logger.info(marker, msg, sanitize(t));
     }
 
     /**
@@ -627,7 +627,7 @@ public class LoggerAdapter implements org.slf4j.Logger {
      */
     @Override
     public void warn(String msg, Throwable t) {
-        logger.warn(msg, t);
+        logger.warn(msg, sanitize(t));
     }
 
     /**
@@ -701,7 +701,7 @@ public class LoggerAdapter implements org.slf4j.Logger {
      */
     @Override
     public void warn(Marker marker, String msg, Throwable t) {
-        logger.warn(marker, msg, t);
+        logger.warn(marker, msg, sanitize(t));
     }
 
     /**
@@ -780,7 +780,7 @@ public class LoggerAdapter implements org.slf4j.Logger {
      */
     @Override
     public void error(String msg, Throwable t) {
-        logger.error(msg, t);
+        logger.error(msg, sanitize(t));
     }
 
     /**
@@ -855,7 +855,7 @@ public class LoggerAdapter implements org.slf4j.Logger {
      */
     @Override
     public void error(Marker marker, String msg, Throwable t) {
-        logger.error(marker, msg, t);
+        logger.error(marker, msg, sanitize(t));
     }
 
     public void setExceptionClassesToHide(Class[] values) {
