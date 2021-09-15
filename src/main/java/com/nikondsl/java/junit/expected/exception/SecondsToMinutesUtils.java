@@ -8,10 +8,13 @@ public class SecondsToMinutesUtils {
 
     public int secsToMins(String seconds) {
         try {
+            if (seconds == null) {
+                throw new NullPointerException("Argument cannot be null");
+            }
             return secsToMins(Integer.parseInt(seconds));
-        } catch (NumberFormatException nfe) {
-            LOG.error("Could not parse '{}' as integer", seconds, nfe);
-            throw nfe;
+        } catch (Exception exception) {
+            LOG.error("Could not parse '{}' as integer", seconds, exception);
+            throw exception;
         }
     }
 

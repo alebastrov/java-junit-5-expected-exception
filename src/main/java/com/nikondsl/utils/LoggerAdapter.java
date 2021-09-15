@@ -68,6 +68,9 @@ public class LoggerAdapter implements org.slf4j.Logger {
     }
 
     private Object sanitize(Object arg) {
+        if (arg == null) {
+            return null;
+        }
         if (arg instanceof Exception && !classesToMitigate.isEmpty()) {
             if (classesToMitigate.contains(arg.getClass())) {
                 return "Mitigated "+ arg.getClass().getCanonicalName() + ":" + ((Exception) arg).getMessage();
