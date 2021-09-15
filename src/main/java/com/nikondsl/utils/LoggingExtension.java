@@ -16,7 +16,7 @@ public class LoggingExtension implements TestInstancePostProcessor {
         //take a field to set up new logger
         Class clazz = testInstance.getClass();
         for (Field field : clazz.getDeclaredFields()) {
-            if (!field.isAnnotationPresent(Mitigate.class)) {
+            if (!field.isAnnotationPresent(HideExceptionLogging.class)) {
                 continue;
             }
             // do only for mitigated
@@ -34,7 +34,7 @@ public class LoggingExtension implements TestInstancePostProcessor {
                             lookForLogger,
                             toInjectNewLogger,
                             (Logger) possibleLogger,
-                            field.getAnnotation(Mitigate.class).value());
+                            field.getAnnotation(HideExceptionLogging.class).value());
                 }
             }
         }

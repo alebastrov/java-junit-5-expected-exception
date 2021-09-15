@@ -9,7 +9,7 @@ All you should do is just add 2 annotations to your test class
 @ExtendWith(LoggingExtension.class)
 public class SecondsToMinutesUtilsExceptionTest {
 
-    @Mitigate({NumberFormatException.class, IllegalArgumentException.class})
+    @HideExceptionLogging({NumberFormatException.class, IllegalArgumentException.class})
     private static SecondsToMinutesUtils secsToMins;
     ...
 ~~~
@@ -25,3 +25,4 @@ That replacement class is wrapping real SLF4J logger and evry time target class 
 if that exception class is expected. If so - it skips logging it.
 
 Note: it likely will not work with final fields, so you perhaps will need also remove 'final' modifier inside the class.
+Note: default class for hiding is ReflectiveOperationException.

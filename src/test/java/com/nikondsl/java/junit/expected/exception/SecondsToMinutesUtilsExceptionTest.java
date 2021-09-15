@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.nikondsl.utils.LoggingExtension;
-import com.nikondsl.utils.Mitigate;
+import com.nikondsl.utils.HideExceptionLogging;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,7 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(LoggingExtension.class)
 public class SecondsToMinutesUtilsExceptionTest {
 
-    @Mitigate({NumberFormatException.class, IllegalArgumentException.class})
+    @HideExceptionLogging({NumberFormatException.class, IllegalArgumentException.class, NullPointerException.class})
     private static SecondsToMinutesUtils secsToMins;
 
     @BeforeAll
