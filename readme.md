@@ -21,3 +21,5 @@ for the tested class.
 How on Earth it works?
 It uses extension mechanism for JUnit5 and provides a replacement for your Log4J field in target class.
 That replacement class is wrapping real SLF4J logger and evry time target class throwing an exception it check if that exception class is expected. If so - it skips logging it.
+
+Note: sometimes it cannot work with final fielda, so you perhaps will need also remove 'final' modificator inside the class.
