@@ -16,17 +16,9 @@ public class SecondsToMinutesUtils {
     }
 
     public int secsToMins(int seconds) {
-        LOG.info("before method");
-        try {
-            if (seconds < 0) {
-                LOG.error("throwing exception");
-                throw new IllegalArgumentException("seconds (" + seconds + ") cannot be 0 or negative");
-            }
-            LOG.info("returning result");
-            return Long.valueOf((long) (seconds / 60.0)).intValue();
-        } finally {
-            LOG.info("after method");
+        if (seconds < 0) {
+            throw new IllegalArgumentException("seconds (" + seconds + ") cannot be 0 or negative");
         }
+        return Long.valueOf((long) (seconds / 60.0)).intValue();
     }
-
 }
