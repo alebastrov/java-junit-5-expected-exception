@@ -19,18 +19,18 @@ public class LoggingExtension implements TestInstancePostProcessor {
             if (!field.isAnnotationPresent(HideExceptionLogging.class)) {
                 continue;
             }
-            // do only for mitigated
+            // do only for annotated fields in test class
             field.setAccessible(true);
             Object toInjectNewLogger = field.get(testInstance);
             // look for 'org.slf4j.Logger' there
             if (toInjectNewLogger == null) {
-                throw new IllegalStateException("@Mitigate annotated field (" + field.getName() + ") is null");
+                throw new IllegalStateException("@HideExceptionLogging annotated field (" + field.getName() + ") is null");
             }
             for (Field lookForLogger : toInjectNewLogger.getClass().getDeclaredFields()) {
                 lookForLogger.setAccessible(true);
                 Object possibleLogger = lookForLogger.get(toInjectNewLogger);
                 if (possibleLogger instanceof Logger) {
-                    setUpMitigatedLogger(toInjectNewLogger.getClass().getCanonicalName(),
+                    setUpLogger(toInjectNewLogger.getClass().getCanonicalName(),
                             lookForLogger,
                             toInjectNewLogger,
                             (Logger) possibleLogger,
@@ -40,15 +40,15 @@ public class LoggingExtension implements TestInstancePostProcessor {
         }
     }
 
-    private void setUpMitigatedLogger(String className,
-                                      Field field,
-                                      Object toInjectNewLogger,
-                                      Logger logger,
-                                      Class[] values) throws ReflectiveOperationException {
-//        System.out.println("Setting up mitigated logger into '" + className +
+    private void setUpLogger(String className,
+                             Field field,
+                             Object toInjectNewLogger,
+                             Logger logger,
+                             Class[] values) throws ReflectiveOperationException {
+//        System.out.println("Setting up logger into '" + className +
 //                "." + field.getName() + "' with " + Arrays.asList(values));
         LoggerAdapter loggerAdapter = new LoggerAdapter(logger);
-        loggerAdapter.setMitigatedExceptions(values);
+        loggerAdapter.setExceptionsToHide(values);
         if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
             trySetStaticField(className, field, toInjectNewLogger, loggerAdapter);
         } else {

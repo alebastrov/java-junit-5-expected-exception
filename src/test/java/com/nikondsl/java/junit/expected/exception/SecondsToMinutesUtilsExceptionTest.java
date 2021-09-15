@@ -30,7 +30,7 @@ public class SecondsToMinutesUtilsExceptionTest {
     @Test
     public void testNewStyleSecsToMinsException() {
         int seconds = -1;
-        //mitigate an exception, so it will not be shown in logs
+        //hide an exception, so it will not be shown in logs
         assertThrows(IllegalArgumentException.class, () -> secsToMins.secsToMins(seconds));
     }
 
@@ -41,27 +41,27 @@ public class SecondsToMinutesUtilsExceptionTest {
             secsToMins.secsToMins(seconds);
             fail();
         } catch (Exception ex) {
-            //mitigate an exception, so it will not be shown in logs
+            //hide an exception, so it will not be shown in logs
         }
     }
 
     @Test
     public void testSecsToMinsStringException() {
         String seconds = "-1";
-        //mitigate an exception, so it will not be shown in logs
+        //hide an exception, so it will not be shown in logs
         assertThrows(IllegalArgumentException.class, () -> secsToMins.secsToMins(seconds));
     }
 
     @Test
     public void testSecsToMinsStringExceptionParse() {
         String seconds = "abc";
-        //mitigate an exception, so it will not be shown in logs
+        //hide an exception, so it will not be shown in logs
         assertThrows(IllegalArgumentException.class, () -> secsToMins.secsToMins(seconds));
     }
 
     @Test
     public void testSecsToMinsStringNotExpectedException() {
-        //here is NPE expected, but we do not mitigate it, so it will be shown in logs
+        //here is NPE expected, but we do not hide it, so it will be shown in logs
         assertThrows(NullPointerException.class, () -> secsToMins.secsToMins((String) null));
     }
 }

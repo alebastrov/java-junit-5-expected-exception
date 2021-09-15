@@ -11,7 +11,7 @@ import java.util.Set;
 
 public class LoggerAdapter implements org.slf4j.Logger {
     private org.slf4j.Logger logger;
-    private Set<Class> classesToMitigate;
+    private Set<Class> exceptionsToHide;
 
     public LoggerAdapter(Logger delegate) {
         logger = delegate;
@@ -71,9 +71,9 @@ public class LoggerAdapter implements org.slf4j.Logger {
         if (arg == null) {
             return null;
         }
-        if (arg instanceof Exception && !classesToMitigate.isEmpty()) {
-            if (classesToMitigate.contains(arg.getClass())) {
-                return "Mitigated "+ arg.getClass().getCanonicalName() + ":" + ((Exception) arg).getMessage();
+        if (arg instanceof Exception && !exceptionsToHide.isEmpty()) {
+            if (exceptionsToHide.contains(arg.getClass())) {
+                return arg.getClass().getCanonicalName() + " is hidden:" + ((Exception) arg).getMessage();
             }
         }
         return arg;
@@ -848,7 +848,7 @@ public class LoggerAdapter implements org.slf4j.Logger {
         logger.error(marker, msg, t);
     }
 
-    public void setMitigatedExceptions(Class[] values) {
-        this.classesToMitigate = new HashSet<>(Arrays.asList(values));
+    public void setExceptionsToHide(Class[] values) {
+        this.exceptionsToHide = new HashSet<>(Arrays.asList(values));
     }
 }

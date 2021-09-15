@@ -15,7 +15,7 @@ public class SecondsToMinutesUtilsExceptionTest {
 ~~~
 
 @ExtendWith(LoggingExtension.class) enables that plugin and
-@Mitigate(Class[]) allows you to set up which Exceptions you're expecting to be thrown
+@HideExceptionLogging(Class[]) allows you to set up which Exceptions you're expecting to be thrown
 for the tested class.
 
 
