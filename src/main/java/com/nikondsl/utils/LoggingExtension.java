@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 
 public class LoggingExtension implements TestInstancePostProcessor {
 
@@ -16,15 +17,27 @@ public class LoggingExtension implements TestInstancePostProcessor {
         //take a field to set up new logger
         Class clazz = testInstance.getClass();
         for (Field field : clazz.getDeclaredFields()) {
-            if (!field.isAnnotationPresent(HideExceptionLogging.class)) {
+            if (!field.isAnnotationPresent(HideByExceptionClass.class) &&
+                !field.isAnnotationPresent(HideByExceptionMessage.class)) {
                 continue;
+            }
+            String anno = "HideByExceptionMessage";
+            Class[] classesToHide = null;
+            String[] messagesToHide = null;
+            if (field.isAnnotationPresent(HideByExceptionClass.class)) {
+                anno = "HideByExceptionClass";
+                classesToHide = field.getAnnotation(HideByExceptionClass.class).value();
+            }
+            if (field.isAnnotationPresent(HideByExceptionMessage.class)) {
+                anno = "HideByExceptionClass";
+                messagesToHide = field.getAnnotation(HideByExceptionMessage.class).value();
             }
             // do only for annotated fields in test class
             field.setAccessible(true);
             Object toInjectNewLogger = field.get(testInstance);
             // look for 'org.slf4j.Logger' there
             if (toInjectNewLogger == null) {
-                throw new IllegalStateException("@HideExceptionLogging annotated field (" + field.getName() + ") is null");
+                throw new IllegalStateException("@" + anno + " annotated field (" + field.getName() + ") is null");
             }
             for (Field lookForLogger : toInjectNewLogger.getClass().getDeclaredFields()) {
                 lookForLogger.setAccessible(true);
@@ -34,7 +47,8 @@ public class LoggingExtension implements TestInstancePostProcessor {
                             lookForLogger,
                             toInjectNewLogger,
                             (Logger) possibleLogger,
-                            field.getAnnotation(HideExceptionLogging.class).value());
+                            classesToHide,
+                            messagesToHide);
                 }
             }
         }
@@ -44,11 +58,15 @@ public class LoggingExtension implements TestInstancePostProcessor {
                              Field field,
                              Object toInjectNewLogger,
                              Logger logger,
-                             Class[] values) throws ReflectiveOperationException {
-//        System.out.println("Setting up logger into '" + className +
-//                "." + field.getName() + "' with " + Arrays.asList(values));
+                             Class[] classesToHide,
+                             String[] messagesToHide) throws ReflectiveOperationException {
+        System.out.println("Setting up logger into '" + className +
+                "." + field.getName() + "' with " + messagesToHide != null
+                ? Arrays.asList(messagesToHide)
+                : Arrays.asList(classesToHide));
         LoggerAdapter loggerAdapter = new LoggerAdapter(logger);
-        loggerAdapter.setExceptionsToHide(values);
+        loggerAdapter.setExceptionClassesToHide(classesToHide);
+        loggerAdapter.setExceptionMessagesToHide(messagesToHide);
         if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
             trySetStaticField(className, field, toInjectNewLogger, loggerAdapter);
         } else {

@@ -5,13 +5,16 @@ import org.slf4j.Marker;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public class LoggerAdapter implements org.slf4j.Logger {
     private org.slf4j.Logger logger;
-    private Set<Class> exceptionsToHide;
+    private Set<Class> exceptionsToHide = Collections.emptySet();
+    private Set<String> messagesToHide = Collections.emptySet();
 
     public LoggerAdapter(Logger delegate) {
         logger = delegate;
@@ -71,16 +74,23 @@ public class LoggerAdapter implements org.slf4j.Logger {
         if (arg == null) {
             return null;
         }
-        if (arg instanceof Exception && !exceptionsToHide.isEmpty()) {
+        if (arg instanceof Exception) {
             if (exceptionsToHide.contains(arg.getClass())) {
-                return arg.getClass().getCanonicalName() + " is hidden:" + ((Exception) arg).getMessage();
+                return arg.getClass().getCanonicalName() + " is hidden by class:" + ((Exception) arg).getMessage();
+            }
+            Optional<String> patternFound = messagesToHide
+                    .stream()
+                    .filter(pattern -> ((Exception) arg).getMessage().contains(pattern))
+                    .findAny();
+            if (patternFound.isPresent()) {
+                return arg.getClass().getCanonicalName() + " is hidden by message:" + ((Exception) arg).getMessage();
             }
         }
         return arg;
     }
 
     private Object[] getSanitizedCopy(Object[] arguments) {
-        List result = new ArrayList<>();
+        List<Object> result = new ArrayList<>();
         for (Object obj : arguments) {
             if (obj instanceof Exception) {
                 result.add(sanitize(obj));
@@ -848,7 +858,15 @@ public class LoggerAdapter implements org.slf4j.Logger {
         logger.error(marker, msg, t);
     }
 
-    public void setExceptionsToHide(Class[] values) {
-        this.exceptionsToHide = new HashSet<>(Arrays.asList(values));
+    public void setExceptionClassesToHide(Class[] values) {
+        if (values != null) {
+            this.exceptionsToHide = new HashSet<>(Arrays.asList(values));
+        }
+    }
+
+    public void setExceptionMessagesToHide(String[] values) {
+        if (values != null) {
+            this.messagesToHide = new HashSet<>(Arrays.asList(values));
+        }
     }
 }

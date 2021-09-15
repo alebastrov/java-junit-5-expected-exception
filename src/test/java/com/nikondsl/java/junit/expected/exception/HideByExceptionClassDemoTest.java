@@ -5,15 +5,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.nikondsl.utils.LoggingExtension;
-import com.nikondsl.utils.HideExceptionLogging;
+import com.nikondsl.utils.HideByExceptionClass;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(LoggingExtension.class)
-public class SecondsToMinutesUtilsExceptionTest {
+public class HideByExceptionClassDemoTest {
 
-    @HideExceptionLogging({NumberFormatException.class, IllegalArgumentException.class, NullPointerException.class})
+    @HideByExceptionClass({NumberFormatException.class, IllegalArgumentException.class, NullPointerException.class})
     private static SecondsToMinutesUtils secsToMins;
 
     @BeforeAll

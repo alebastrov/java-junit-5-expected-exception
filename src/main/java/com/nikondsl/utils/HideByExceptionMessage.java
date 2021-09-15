@@ -7,6 +7,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface HideExceptionLogging {
-    Class[] value() default {ReflectiveOperationException.class};
+public @interface HideByExceptionMessage {
+    String[] value() default {};
 }

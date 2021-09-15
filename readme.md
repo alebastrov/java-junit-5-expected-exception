@@ -9,13 +9,13 @@ All you should do is just add 2 annotations to your test class
 @ExtendWith(LoggingExtension.class)
 public class SecondsToMinutesUtilsExceptionTest {
 
-    @HideExceptionLogging({NumberFormatException.class, IllegalArgumentException.class})
+    @HideByExceptionClass({NumberFormatException.class, IllegalArgumentException.class})
     private static SecondsToMinutesUtils secsToMins;
     ...
 ~~~
 
 @ExtendWith(LoggingExtension.class) enables that plugin and
-@HideExceptionLogging(Class[]) allows you to set up which Exceptions you're expecting to be thrown
+@HideByExceptionClass(Class[]) allows you to set up which Exceptions you're expecting to be thrown
 for the tested class.
 
 
