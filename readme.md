@@ -42,3 +42,5 @@ but exception message is still there.
 
 Note: it likely will not work with final fields, so you perhaps will need also remove 'final' modifier inside the class.
 Note: default class for hiding is ReflectiveOperationException.
+
+@ToDo add list of static members of classes to replace loggers!
