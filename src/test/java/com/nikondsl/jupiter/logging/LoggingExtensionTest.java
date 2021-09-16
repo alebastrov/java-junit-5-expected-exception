@@ -63,7 +63,6 @@ public class LoggingExtensionTest {
         loggingExtension.postProcessTestInstance(testInstance, null);
 
         assertNotNull(testInstance.instance1.LOGGER);
-        assertEquals(Slf4JLoggerAdapter.class, testInstance.instance1.LOGGER.getClass());
     }
 
     @Test
