@@ -1,4 +1,4 @@
-package com.nikondsl.utils;
+package com.nikondsl.logging.utils;
 
 
 import org.slf4j.Logger;
@@ -20,13 +20,15 @@ public class LoggingExtension implements TestInstancePostProcessor {
         Class clazz = testInstance.getClass();
         for (Field field : clazz.getDeclaredFields()) {
             if (!field.isAnnotationPresent(HideByExceptionClass.class) &&
-                !field.isAnnotationPresent(HideByExceptionMessage.class)) {
+                !field.isAnnotationPresent(HideByExceptionMessage.class) &&
+                !field.isAnnotationPresent(HideByExceptionClassAndMessage.class)) {
                 continue;
             }
 
             String anno = "HideByExceptionMessage";
             Class[] classesToHide = null;
             String[] messagesToHide = null;
+            ClassAndMessage[] classAndMessageToHide = null;
             if (field.isAnnotationPresent(HideByExceptionClass.class)) {
                 anno = "HideByExceptionClass";
                 classesToHide = field.getAnnotation(HideByExceptionClass.class).value();
@@ -34,6 +36,10 @@ public class LoggingExtension implements TestInstancePostProcessor {
             if (field.isAnnotationPresent(HideByExceptionMessage.class)) {
                 anno = "HideByExceptionClass";
                 messagesToHide = field.getAnnotation(HideByExceptionMessage.class).value();
+            }
+            if (field.isAnnotationPresent(HideByExceptionClassAndMessage.class)) {
+                anno = "HideByExceptionClassAndMessage";
+                classAndMessageToHide = field.getAnnotation(HideByExceptionClassAndMessage.class).value();
             }
             LOG.debug("Field with annotation @" + anno + " is found in class: " + clazz.getCanonicalName());
             // do only for annotated fields in test class
@@ -54,7 +60,8 @@ public class LoggingExtension implements TestInstancePostProcessor {
                             toInjectNewLogger,
                             (Logger) possibleLogger,
                             classesToHide,
-                            messagesToHide);
+                            messagesToHide,
+                            classAndMessageToHide);
                     newLoggerSet = true;
                 }
             }
@@ -69,7 +76,8 @@ public class LoggingExtension implements TestInstancePostProcessor {
                              Object toInjectNewLogger,
                              Logger logger,
                              Class[] classesToHide,
-                             String[] messagesToHide) throws ReflectiveOperationException {
+                             String[] messagesToHide,
+                             ClassAndMessage[] classAndMessageToHide) throws ReflectiveOperationException {
         LOG.debug("Setting up logger into '" + className +
                 "." + field.getName() + "' with " + (messagesToHide != null
                 ? Arrays.asList(messagesToHide)
@@ -77,6 +85,7 @@ public class LoggingExtension implements TestInstancePostProcessor {
         LoggerAdapter loggerAdapter = createLoggerAdaptor(logger);
         loggerAdapter.setExceptionClassesToHide(classesToHide);
         loggerAdapter.setExceptionMessagesToHide(messagesToHide);
+        loggerAdapter.setExceptionClassAndMessageToHide(classAndMessageToHide);
         if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
             LOG.debug("Field '" + field.getName() + "' static in class: " +
                     toInjectNewLogger.getClass().getCanonicalName());

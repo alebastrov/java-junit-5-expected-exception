@@ -1,4 +1,4 @@
-package com.nikondsl.utils;
+package com.nikondsl.logging.utils;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,6 +7,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface HideByExceptionClass {
-    Class[] value() default {IllegalArgumentException.class, ReflectiveOperationException.class};
+public @interface HideByExceptionMessage {
+    String[] value() default {};
 }

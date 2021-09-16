@@ -1,4 +1,4 @@
-package com.nikondsl.utils;
+package com.nikondsl.logging.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.Marker;
@@ -15,6 +15,7 @@ public class LoggerAdapter implements org.slf4j.Logger {
     private org.slf4j.Logger logger;
     private Set<Class> exceptionsToHide = Collections.emptySet();
     private Set<String> messagesToHide = Collections.emptySet();
+    private List<ClassAndMessage> classAndMessageToHide = Collections.emptyList();
 
     public LoggerAdapter(Logger delegate) {
         logger = delegate;
@@ -68,37 +69,6 @@ public class LoggerAdapter implements org.slf4j.Logger {
         if (logger.isTraceEnabled()) {
             logger.trace(format, sanitize(arg));
         }
-    }
-
-    protected Object sanitize(Object arg) {
-        if (arg == null) {
-            return null;
-        }
-        if (arg instanceof Exception) {
-            if (exceptionsToHide.contains(arg.getClass())) {
-                return arg.getClass().getCanonicalName() + " is hidden by class:" + ((Exception) arg).getMessage();
-            }
-            Optional<String> patternFound = messagesToHide
-                    .stream()
-                    .filter(pattern -> ((Exception) arg).getMessage().contains(pattern))
-                    .findAny();
-            if (patternFound.isPresent()) {
-                return arg.getClass().getCanonicalName() + " is hidden by message:" + ((Exception) arg).getMessage();
-            }
-        }
-        return arg;
-    }
-
-    protected Object[] getSanitizedCopy(Object[] arguments) {
-        List<Object> result = new ArrayList<>();
-        for (Object obj : arguments) {
-            if (obj instanceof Exception) {
-                result.add(sanitize(obj));
-            } else {
-                result.add(obj);
-            }
-        }
-        return result.toArray();
     }
 
     /**
@@ -858,6 +828,51 @@ public class LoggerAdapter implements org.slf4j.Logger {
         logger.error(marker, msg, sanitize(t));
     }
 
+    protected Object sanitize(Object arg) {
+        if (arg == null) {
+            return null;
+        }
+        if (arg instanceof Exception) {
+            if (exceptionsToHide.contains(arg.getClass())) {
+                return arg.getClass().getCanonicalName() + " is hidden by class";
+            }
+            if (!messagesToHide.isEmpty()) {
+                Optional<String> patternFound = messagesToHide
+                        .stream()
+                        .filter(pattern -> ((Exception) arg).getMessage().contains(pattern))
+                        .findAny();
+                if (patternFound.isPresent()) {
+                    return arg.getClass().getCanonicalName() + " is hidden by message:" + ((Exception) arg).getMessage();
+                }
+            }
+            if (!classAndMessageToHide.isEmpty()) {
+                Optional<ClassAndMessage> patternFound = classAndMessageToHide
+                        .stream()
+                        .filter(classAndMessage -> classAndMessage.clazz() == arg.getClass() &&
+                                ((Exception) arg).getMessage().contains(classAndMessage.message()))
+                        .findAny();
+                if (patternFound.isPresent()) {
+                    return arg.getClass().getCanonicalName() + " is hidden by class: " +
+                            arg.getClass().getCanonicalName() + " and message:" +
+                            ((Exception) arg).getMessage();
+                }
+            }
+        }
+        return arg;
+    }
+
+    protected Object[] getSanitizedCopy(Object[] arguments) {
+        List<Object> result = new ArrayList<>();
+        for (Object obj : arguments) {
+            if (obj instanceof Exception) {
+                result.add(sanitize(obj));
+            } else {
+                result.add(obj);
+            }
+        }
+        return result.toArray();
+    }
+
     public void setExceptionClassesToHide(Class[] values) {
         if (values != null) {
             this.exceptionsToHide = new HashSet<>(Arrays.asList(values));
@@ -867,6 +882,12 @@ public class LoggerAdapter implements org.slf4j.Logger {
     public void setExceptionMessagesToHide(String[] values) {
         if (values != null) {
             this.messagesToHide = new HashSet<>(Arrays.asList(values));
+        }
+    }
+
+    public void setExceptionClassAndMessageToHide(ClassAndMessage[] values) {
+        if (values != null) {
+            this.classAndMessageToHide = Arrays.asList(values);
         }
     }
 }

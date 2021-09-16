@@ -1,19 +1,19 @@
-package com.nikondsl.java.junit.expected.exception;
+package com.nikondsl.demo;
+
+import com.nikondsl.logging.utils.HideByExceptionMessage;
+import com.nikondsl.logging.utils.LoggingExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.nikondsl.utils.LoggingExtension;
-import com.nikondsl.utils.HideByExceptionClass;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
 @ExtendWith(LoggingExtension.class)
-public class HideByExceptionClassDemoTest {
+public class HideByExceptionMessageDemoTest {
 
-    @HideByExceptionClass({NumberFormatException.class, IllegalArgumentException.class, NullPointerException.class})
+    @HideByExceptionMessage({"cannot be 0 or negative", "For input string:"})
     private static SecondsToMinutesUtils secsToMins;
 
     @BeforeAll
@@ -23,8 +23,8 @@ public class HideByExceptionClassDemoTest {
 
     @Test
     public void testSecsToMinsHappyPath() {
-        int seconds = 65;
-        assertEquals(1, secsToMins.secsToMins(seconds));
+        int seconds = 185;
+        assertEquals(3, secsToMins.secsToMins(seconds));
     }
 
     @Test

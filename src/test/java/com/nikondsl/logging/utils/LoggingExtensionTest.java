@@ -1,4 +1,4 @@
-package com.nikondsl.utils;
+package com.nikondsl.logging.utils;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

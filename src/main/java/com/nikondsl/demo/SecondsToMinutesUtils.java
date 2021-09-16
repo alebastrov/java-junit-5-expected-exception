@@ -1,4 +1,4 @@
-package com.nikondsl.java.junit.expected.exception;
+package com.nikondsl.demo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
