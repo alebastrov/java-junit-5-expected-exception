@@ -1,6 +1,6 @@
-package com.nikondsl.logging.utils;
+package com.nikondsl.jupiter.logging.adapters;
 
-import com.nikondsl.logging.utils.annotations.ClassAndMessage;
+import com.nikondsl.jupiter.logging.annotations.ClassAndMessage;
 import org.slf4j.Logger;
 import org.slf4j.Marker;
 
@@ -12,13 +12,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public class LoggerAdapter implements org.slf4j.Logger {
+public class Slf4JLoggerAdapter implements org.slf4j.Logger {
     private org.slf4j.Logger logger;
     private Set<Class> exceptionsToHide = Collections.emptySet();
     private Set<String> messagesToHide = Collections.emptySet();
     private List<ClassAndMessage> classAndMessageToHide = Collections.emptyList();
 
-    public LoggerAdapter(Logger delegate) {
+    public Slf4JLoggerAdapter(Logger delegate) {
         logger = delegate;
     }
 

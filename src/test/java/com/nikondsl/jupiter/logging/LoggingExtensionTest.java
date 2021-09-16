@@ -1,8 +1,9 @@
-package com.nikondsl.logging.utils;
+package com.nikondsl.jupiter.logging;
 
-import com.nikondsl.logging.utils.annotations.HideByExceptionClass;
-import com.nikondsl.logging.utils.annotations.HideByExceptionMessage;
-import com.nikondsl.logging.utils.jupiter.extension.LoggingExtension;
+import com.nikondsl.jupiter.logging.adapters.Slf4JLoggerAdapter;
+import com.nikondsl.jupiter.logging.annotations.HideByExceptionClass;
+import com.nikondsl.jupiter.logging.annotations.HideByExceptionMessage;
+import com.nikondsl.jupiter.logging.extension.LoggingExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
@@ -19,8 +20,8 @@ public class LoggingExtensionTest {
 
     private LoggingExtension loggingExtension = new LoggingExtension() {
         @Override
-        protected LoggerAdapter createLoggerAdaptor(Logger logger) {
-            return new LoggerAdapter(logger) {
+        protected Slf4JLoggerAdapter createLoggerAdaptor(Logger logger) {
+            return new Slf4JLoggerAdapter(logger) {
                 protected Object sanitize(Object arg) {
                     Object result = super.sanitize(arg);
                     sanitized.put(arg, result);
@@ -62,7 +63,7 @@ public class LoggingExtensionTest {
         loggingExtension.postProcessTestInstance(testInstance, null);
 
         assertNotNull(testInstance.instance1.LOGGER);
-        assertEquals(LoggerAdapter.class, testInstance.instance1.LOGGER.getClass());
+        assertEquals(Slf4JLoggerAdapter.class, testInstance.instance1.LOGGER.getClass());
     }
 
     @Test

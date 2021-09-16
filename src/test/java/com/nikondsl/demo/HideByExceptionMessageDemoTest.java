@@ -1,7 +1,7 @@
 package com.nikondsl.demo;
 
-import com.nikondsl.logging.utils.annotations.HideByExceptionMessage;
-import com.nikondsl.logging.utils.jupiter.extension.LoggingExtension;
+import com.nikondsl.jupiter.logging.annotations.HideByExceptionMessage;
+import com.nikondsl.jupiter.logging.extension.LoggingExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

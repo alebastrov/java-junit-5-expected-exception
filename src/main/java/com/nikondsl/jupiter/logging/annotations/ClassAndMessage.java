@@ -1,4 +1,4 @@
-package com.nikondsl.logging.utils.annotations;
+package com.nikondsl.jupiter.logging.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

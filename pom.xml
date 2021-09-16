@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.nikondsl</groupId>
-    <artifactId>java-junit-5-expected-exception</artifactId>
+    <artifactId>junit-5-supress-exceptions</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -11,6 +11,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
         <junit.platform.version>5.7.2</junit.platform.version>
+        <junit-platform-engine>1.7.2</junit-platform-engine>
+        <slf4j.version>1.7.30</slf4j.version>
     </properties>
 
     <dependencies>
@@ -22,7 +24,7 @@
         <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-engine</artifactId>
-            <version>1.7.2</version>
+            <version>${junit-platform-engine}</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -32,12 +34,12 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.30</version>
+            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.30</version>
+            <version>${slf4j.version}</version>
         </dependency>
 
     </dependencies>

@@ -1,12 +1,12 @@
-package com.nikondsl.logging.utils.jupiter.extension;
+package com.nikondsl.jupiter.logging.extension;
 
 
-import com.nikondsl.logging.utils.annotations.ClassAndMessage;
-import com.nikondsl.logging.utils.annotations.ClassesToWrapLoggers;
-import com.nikondsl.logging.utils.annotations.HideByExceptionClass;
-import com.nikondsl.logging.utils.annotations.HideByExceptionClassAndMessage;
-import com.nikondsl.logging.utils.annotations.HideByExceptionMessage;
-import com.nikondsl.logging.utils.LoggerAdapter;
+import com.nikondsl.jupiter.logging.adapters.Slf4JLoggerAdapter;
+import com.nikondsl.jupiter.logging.annotations.ClassAndMessage;
+import com.nikondsl.jupiter.logging.annotations.ClassesToWrapLoggers;
+import com.nikondsl.jupiter.logging.annotations.HideByExceptionClass;
+import com.nikondsl.jupiter.logging.annotations.HideByExceptionClassAndMessage;
+import com.nikondsl.jupiter.logging.annotations.HideByExceptionMessage;
 import org.junit.jupiter.api.extension.TestInstancePreDestroyCallback;
 import org.slf4j.Logger;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -110,7 +110,7 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
                              ClassAndMessage[] classAndMessageToHide) throws ReflectiveOperationException {
         LOG.debug("Setting up logger into '" + className +
                 "." + field.getName() + "' with " + parameters(classesToHide, messagesToHide, classAndMessageToHide));
-        LoggerAdapter loggerAdapter = createLoggerAdaptor(logger);
+        Slf4JLoggerAdapter loggerAdapter = createLoggerAdaptor(logger);
         loggerAdapter.setExceptionClassesToHide(classesToHide);
         loggerAdapter.setExceptionMessagesToHide(messagesToHide);
         loggerAdapter.setExceptionClassAndMessageToHide(classAndMessageToHide);
@@ -156,14 +156,14 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
         return result.toString();
     }
 
-    protected LoggerAdapter createLoggerAdaptor(Logger logger) {
-        return new LoggerAdapter(logger);
+    protected Slf4JLoggerAdapter createLoggerAdaptor(Logger logger) {
+        return new Slf4JLoggerAdapter(logger);
     }
 
     static void trySetStaticField(String className,
                                   Field field,
                                   Object toInjectNewLogger,
-                                  LoggerAdapter newValue)
+                                  Slf4JLoggerAdapter newValue)
             throws ReflectiveOperationException {
         field.setAccessible(true);
 
@@ -191,8 +191,8 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
         for(Map.Entry<Object, List<Field>> entry : toRevert.entrySet()) {
             for (Field field : entry.getValue()) {
                 Logger logger = (Logger) field.get(entry.getKey());
-                if (logger instanceof LoggerAdapter) {
-                    field.set(entry.getKey(), ((LoggerAdapter) logger).getWrappedLogger());
+                if (logger instanceof Slf4JLoggerAdapter) {
+                    field.set(entry.getKey(), ((Slf4JLoggerAdapter) logger).getWrappedLogger());
                     LOG.debug("Old Logger is reverted for field '" + field.getName() + "' in class: " +
                             entry.getKey().getClass().getCanonicalName());
                 }
