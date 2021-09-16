@@ -1,6 +1,7 @@
 package com.nikondsl.demo;
 
 import com.nikondsl.logging.utils.ClassAndMessage;
+import com.nikondsl.logging.utils.ClassesToWrapLoggers;
 import com.nikondsl.logging.utils.HideByExceptionClassAndMessage;
 import com.nikondsl.logging.utils.LoggingExtension;
 import org.junit.jupiter.api.BeforeAll;

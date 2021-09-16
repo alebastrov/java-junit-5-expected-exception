@@ -6,11 +6,9 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
-import java.util.List;
 
 public class LoggingExtension implements TestInstancePostProcessor {
     private static Logger LOG = LoggerFactory.getLogger(LoggingExtension.class);
@@ -20,6 +18,11 @@ public class LoggingExtension implements TestInstancePostProcessor {
                                         ExtensionContext context) throws Exception {
         //take a field to set up new logger
         Class clazz = testInstance.getClass();
+        Class[] toReplaceLoggers = new Class[0];
+        if (clazz.isAnnotationPresent(ClassesToWrapLoggers.class)) {
+            ClassesToWrapLoggers annotation = (ClassesToWrapLoggers) clazz.getAnnotation(ClassesToWrapLoggers.class);
+            toReplaceLoggers = annotation.value();
+        }
         for (Field field : clazz.getDeclaredFields()) {
             if (!field.isAnnotationPresent(HideByExceptionClass.class) &&
                 !field.isAnnotationPresent(HideByExceptionMessage.class) &&
@@ -52,25 +55,36 @@ public class LoggingExtension implements TestInstancePostProcessor {
                 LOG.error("Field with annotation @" + anno + " is not initialized now");
                 throw new IllegalStateException("@" + anno + " annotated field (" + field.getName() + ") is null");
             }
-            boolean newLoggerSet = false;
-            for (Field lookForLogger : toInjectNewLogger.getClass().getDeclaredFields()) {
-                lookForLogger.setAccessible(true);
-                Object possibleLogger = lookForLogger.get(toInjectNewLogger);
-                if (possibleLogger instanceof Logger) {
-                    setUpLogger(toInjectNewLogger.getClass().getCanonicalName(),
-                            lookForLogger,
-                            toInjectNewLogger,
-                            (Logger) possibleLogger,
-                            classesToHide,
-                            messagesToHide,
-                            classAndMessageToHide);
-                    newLoggerSet = true;
-                }
+            boolean newLoggerSet = lookForAndReplaceLogger(classesToHide, messagesToHide, classAndMessageToHide, toInjectNewLogger);
+            for (Class toReplaceLogger : toReplaceLoggers) {
+                newLoggerSet |= lookForAndReplaceLogger(classesToHide, messagesToHide, classAndMessageToHide, toReplaceLogger);
             }
             if (!newLoggerSet) {
                 LOG.warn("Logger field is not found in class: " + toInjectNewLogger.getClass().getCanonicalName());
             }
         }
+    }
+
+    private boolean lookForAndReplaceLogger(Class[] classesToHide,
+                                            String[] messagesToHide,
+                                            ClassAndMessage[] classAndMessageToHide,
+                                            Object toInjectNewLogger) throws ReflectiveOperationException {
+        boolean newLoggerSet = false;
+        for (Field lookForLogger : toInjectNewLogger.getClass().getDeclaredFields()) {
+            lookForLogger.setAccessible(true);
+            Object possibleLogger = lookForLogger.get(toInjectNewLogger);
+            if (possibleLogger instanceof Logger) {
+                setUpLogger(toInjectNewLogger.getClass().getCanonicalName(),
+                        lookForLogger,
+                        toInjectNewLogger,
+                        (Logger) possibleLogger,
+                        classesToHide,
+                        messagesToHide,
+                        classAndMessageToHide);
+                newLoggerSet = true;
+            }
+        }
+        return newLoggerSet;
     }
 
     private void setUpLogger(String className,
