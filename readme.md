@@ -4,7 +4,8 @@ If your test expects some exception (negative path testing) you probably will wa
 in logs in order to have them clear
 
 All you should do is just add @ExtendWith annotations to your test class and one of 
-@HideByExceptionClass or @HideByExceptionMessage to the tested field, which exceptions with it should be hidden
+@HideByExceptionClass or @HideByExceptionMessage or @HideByExceptionClassAndMessage 
+to the tested field, which exceptions with it should be hidden
 
 ~~~
 @ExtendWith(LoggingExtension.class)
@@ -15,13 +16,21 @@ public class SecondsToMinutesUtilsExceptionTest {
     
     @HideByExceptionMessage({"unexpected error", "not desired to be logged"})
     private static SecondsToMinutesUtils secsToMins2;
+    
+    @HideByExceptionClassAndMessage({
+            @ClassAndMessage(clazz = NumberFormatException.class, message = "For input string:"),
+            @ClassAndMessage(clazz = IllegalArgumentException.class, message = "cannot be 0 or negative"),
+            @ClassAndMessage(clazz = NullPointerException.class, message = "Argument cannot be null")
+    })
+    private static SecondsToMinutesUtils secsToMins3;
     ...
 ~~~
 
-@ExtendWith(LoggingExtension.class) enables that plugin and
-@HideByExceptionClass(Class[]) allows you to filter out exception classes you're expecting to be thrown
+@ExtendWith(LoggingExtension.class) enables that plugin and one of:
+- @HideByExceptionClass(Class[]) allows you to filter out exception classes you're expecting to be thrown
 for the tested class.
-@HideByExceptionMessage(String[]) allows you to filter out exceptions by their messages.
+- @HideByExceptionMessage(String[]) allows you to filter out exceptions by their messages.
+- @HideByExceptionClassAndMessage allows to specify both class and message.
 
 
 How on Earth it works?

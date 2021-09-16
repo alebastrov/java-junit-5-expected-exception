@@ -6,9 +6,11 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.List;
 
 public class LoggingExtension implements TestInstancePostProcessor {
     private static Logger LOG = LoggerFactory.getLogger(LoggingExtension.class);
@@ -79,9 +81,7 @@ public class LoggingExtension implements TestInstancePostProcessor {
                              String[] messagesToHide,
                              ClassAndMessage[] classAndMessageToHide) throws ReflectiveOperationException {
         LOG.debug("Setting up logger into '" + className +
-                "." + field.getName() + "' with " + (messagesToHide != null
-                ? Arrays.asList(messagesToHide)
-                : Arrays.asList(classesToHide)));
+                "." + field.getName() + "' with " + parameters(classesToHide, messagesToHide, classAndMessageToHide));
         LoggerAdapter loggerAdapter = createLoggerAdaptor(logger);
         loggerAdapter.setExceptionClassesToHide(classesToHide);
         loggerAdapter.setExceptionMessagesToHide(messagesToHide);
@@ -96,6 +96,26 @@ public class LoggingExtension implements TestInstancePostProcessor {
                     toInjectNewLogger.getClass().getCanonicalName() + " is wrapped");
             field.set(toInjectNewLogger, loggerAdapter);
         }
+    }
+
+    private String parameters(Class[] classesToHide, String[] messagesToHide, ClassAndMessage[] classAndMessageToHide) {
+        StringBuilder result = new StringBuilder();
+
+        if (messagesToHide != null) {
+            result.append("message contains any of ").append(Arrays.asList(messagesToHide));
+        }
+        if (classesToHide != null) {
+            result.append("class is one of ").append(Arrays.asList(classesToHide));
+        }
+        if (classAndMessageToHide != null) {
+            result.append("exception is one of ");
+            Arrays
+                    .stream(classAndMessageToHide)
+                    .forEach(classAndMessage -> {
+                        result.append("class: ").append(classAndMessage.clazz()).append(" with message containing: ").append(classAndMessage.message());
+                    });
+        }
+        return result.toString();
     }
 
     protected LoggerAdapter createLoggerAdaptor(Logger logger) {
