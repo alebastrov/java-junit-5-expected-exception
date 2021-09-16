@@ -1,5 +1,6 @@
 package com.nikondsl.logging.utils;
 
+import com.nikondsl.logging.utils.annotations.ClassAndMessage;
 import org.slf4j.Logger;
 import org.slf4j.Marker;
 
@@ -889,5 +890,9 @@ public class LoggerAdapter implements org.slf4j.Logger {
         if (values != null) {
             this.classAndMessageToHide = Arrays.asList(values);
         }
+    }
+
+    public Logger getWrappedLogger() {
+        return logger;
     }
 }

@@ -1,6 +1,13 @@
-package com.nikondsl.logging.utils;
+package com.nikondsl.logging.utils.jupiter.extension;
 
 
+import com.nikondsl.logging.utils.annotations.ClassAndMessage;
+import com.nikondsl.logging.utils.annotations.ClassesToWrapLoggers;
+import com.nikondsl.logging.utils.annotations.HideByExceptionClass;
+import com.nikondsl.logging.utils.annotations.HideByExceptionClassAndMessage;
+import com.nikondsl.logging.utils.annotations.HideByExceptionMessage;
+import com.nikondsl.logging.utils.LoggerAdapter;
+import org.junit.jupiter.api.extension.TestInstancePreDestroyCallback;
 import org.slf4j.Logger;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestInstancePostProcessor;
@@ -8,10 +15,17 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
-public class LoggingExtension implements TestInstancePostProcessor {
+public class LoggingExtension implements TestInstancePostProcessor, TestInstancePreDestroyCallback {
     private static Logger LOG = LoggerFactory.getLogger(LoggingExtension.class);
+    private static ConcurrentMap<Object, List<Field>> toRevert = new ConcurrentHashMap<>();
 
     @Override
     public void postProcessTestInstance(Object testInstance,
@@ -109,7 +123,17 @@ public class LoggingExtension implements TestInstancePostProcessor {
             LOG.debug("Logger '" + field.getName() + "' in class: " +
                     toInjectNewLogger.getClass().getCanonicalName() + " is wrapped");
             field.set(toInjectNewLogger, loggerAdapter);
+            addToRevert(toInjectNewLogger, field);
         }
+    }
+
+    private static void addToRevert(Object toRevertObject, Field toRevertField) {
+        List<Field> newFields = Collections.synchronizedList(new ArrayList<>());
+        List<Field> oldFields = toRevert.putIfAbsent(toRevertObject, newFields);
+        if (oldFields == null) {
+            oldFields = newFields;
+        }
+        oldFields.add(toRevertField);
     }
 
     private String parameters(Class[] classesToHide, String[] messagesToHide, ClassAndMessage[] classAndMessageToHide) {
@@ -149,6 +173,7 @@ public class LoggingExtension implements TestInstancePostProcessor {
             modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
             try {
                 field.set(null, newValue);
+                addToRevert(toInjectNewLogger, field);
             } catch (IllegalAccessException ex) {
                 throw new RuntimeException("Please remove 'final' modifier from field '" +
                         field.getName() + "' in class '" + className + "'", ex);
@@ -158,5 +183,20 @@ public class LoggingExtension implements TestInstancePostProcessor {
         LOG.debug("New Logger is set up for field '" + field.getName() + "' in class: " +
                 toInjectNewLogger.getClass().getCanonicalName());
         field.set(toInjectNewLogger, newValue);
+        addToRevert(toInjectNewLogger, field);
+    }
+
+    @Override
+    public void preDestroyTestInstance(ExtensionContext extensionContext) throws Exception {
+        for(Map.Entry<Object, List<Field>> entry : toRevert.entrySet()) {
+            for (Field field : entry.getValue()) {
+                Logger logger = (Logger) field.get(entry.getKey());
+                if (logger instanceof LoggerAdapter) {
+                    field.set(entry.getKey(), ((LoggerAdapter) logger).getWrappedLogger());
+                    LOG.debug("Old Logger is reverted for field '" + field.getName() + "' in class: " +
+                            entry.getKey().getClass().getCanonicalName());
+                }
+            }
+        }
     }
 }

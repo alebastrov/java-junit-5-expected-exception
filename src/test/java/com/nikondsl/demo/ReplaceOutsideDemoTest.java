@@ -1,14 +1,13 @@
 package com.nikondsl.demo;
 
-import com.nikondsl.logging.utils.ClassAndMessage;
-import com.nikondsl.logging.utils.ClassesToWrapLoggers;
-import com.nikondsl.logging.utils.HideByExceptionClassAndMessage;
-import com.nikondsl.logging.utils.LoggingExtension;
+import com.nikondsl.logging.utils.annotations.ClassAndMessage;
+import com.nikondsl.logging.utils.annotations.ClassesToWrapLoggers;
+import com.nikondsl.logging.utils.annotations.HideByExceptionClassAndMessage;
+import com.nikondsl.logging.utils.jupiter.extension.LoggingExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import static java.lang.Math.sqrt;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;

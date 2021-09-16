@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.nikondsl.logging.utils.LoggingExtension;
-import com.nikondsl.logging.utils.HideByExceptionClass;
+import com.nikondsl.logging.utils.jupiter.extension.LoggingExtension;
+import com.nikondsl.logging.utils.annotations.HideByExceptionClass;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
