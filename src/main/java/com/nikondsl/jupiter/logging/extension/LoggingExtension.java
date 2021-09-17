@@ -129,6 +129,11 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
         }
         for (Field lookForLogger : fields) {
             lookForLogger.setAccessible(true);
+            if (lookForLogger.getType().isPrimitive() ||
+                lookForLogger.getType().isArray() ||
+                lookForLogger.getType().isEnum()) {
+                continue;
+            }
             Object possibleLogger = lookForLogger.get(toInjectNewLogger);
             if (possibleLogger instanceof Logger) {
                 setUpLogger(toInjectNewLogger.getClass().getCanonicalName(),
