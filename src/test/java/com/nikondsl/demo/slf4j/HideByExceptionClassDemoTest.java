@@ -1,19 +1,19 @@
-package com.nikondsl.demo;
-
-import com.nikondsl.jupiter.logging.annotations.HideByExceptionMessage;
-import com.nikondsl.jupiter.logging.extension.LoggingExtension;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+package com.nikondsl.demo.slf4j;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@ExtendWith(LoggingExtension.class)
-public class HideByExceptionMessageDemoTest {
+import com.nikondsl.jupiter.logging.extension.LoggingExtension;
+import com.nikondsl.jupiter.logging.annotations.HideByExceptionClass;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-    @HideByExceptionMessage({"cannot be 0 or negative", "For input string:"})
+@ExtendWith(LoggingExtension.class)
+public class HideByExceptionClassDemoTest {
+
+    @HideByExceptionClass({NumberFormatException.class, IllegalArgumentException.class, NullPointerException.class})
     private static SecondsToMinutesUtils secsToMins;
 
     @BeforeAll
@@ -23,8 +23,8 @@ public class HideByExceptionMessageDemoTest {
 
     @Test
     public void testSecsToMinsHappyPath() {
-        int seconds = 185;
-        assertEquals(3, secsToMins.secsToMins(seconds));
+        int seconds = 65;
+        assertEquals(1, secsToMins.secsToMins(seconds));
     }
 
     @Test

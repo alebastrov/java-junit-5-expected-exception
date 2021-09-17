@@ -1,4 +1,4 @@
-package com.nikondsl.demo;
+package com.nikondsl.demo.slf4j;
 
 import com.nikondsl.jupiter.logging.annotations.ClassAndMessage;
 import com.nikondsl.jupiter.logging.annotations.ClassesToWrapLoggers;

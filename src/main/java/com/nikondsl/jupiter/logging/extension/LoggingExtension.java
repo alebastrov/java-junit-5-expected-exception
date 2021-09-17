@@ -2,6 +2,7 @@ package com.nikondsl.jupiter.logging.extension;
 
 
 import com.nikondsl.jupiter.logging.adapters.AbstractLoggerAdapter;
+import com.nikondsl.jupiter.logging.adapters.LoggingSupported;
 import com.nikondsl.jupiter.logging.adapters.impl.Slf4JLoggerAdapter;
 import com.nikondsl.jupiter.logging.annotations.ClassAndMessage;
 import com.nikondsl.jupiter.logging.annotations.ClassesToWrapLoggers;
@@ -139,7 +140,7 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
                 continue;
             }
             Object possibleLogger = lookForLogger.get(toInjectNewLogger);
-            AbstractLoggerAdapter loggerAdapter = createLoggerAdapter(possibleLogger);
+            LoggingSupported loggerAdapter = createLoggerAdapter(possibleLogger);
 
             if (loggerAdapter != null) {
                 setUpLogger(toInjectNewLogger.getClass().getCanonicalName(),
@@ -159,7 +160,7 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
     private void setUpLogger(String className,
                              Field field,
                              Object toInjectNewLogger,
-                             AbstractLoggerAdapter loggerAdapter,
+                             LoggingSupported loggerAdapter,
                              Class[] classesToHide,
                              String[] messagesToHide,
                              ClassAndMessage[] classAndMessageToHide) throws ReflectiveOperationException {
@@ -211,14 +212,14 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
         return result.toString();
     }
 
-    protected AbstractLoggerAdapter createLoggerAdapter(Object logger) {
+    protected LoggingSupported createLoggerAdapter(Object logger) {
         return AbstractLoggerAdapter.createAdapter(logger);
     }
 
     static void trySetStaticField(String className,
                                   Field field,
                                   Object toInjectNewLogger,
-                                  AbstractLoggerAdapter newValue)
+                                  LoggingSupported newValue)
             throws ReflectiveOperationException {
         field.setAccessible(true);
 
@@ -235,7 +236,7 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
             }
             return;
         }
-        LOG.debug("New Logger is set up for field '" + field.getName() + "' in class: " +
+        LOG.debug("New Logger is setting up for field '" + field.getName() + "' in class: " +
                 toInjectNewLogger.getClass().getCanonicalName());
         field.set(toInjectNewLogger, newValue);
         addToRevert(toInjectNewLogger, field);

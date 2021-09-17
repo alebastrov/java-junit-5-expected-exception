@@ -1,7 +1,6 @@
-package com.nikondsl.demo;
+package com.nikondsl.demo.slf4j;
 
-import com.nikondsl.jupiter.logging.annotations.ClassAndMessage;
-import com.nikondsl.jupiter.logging.annotations.HideByExceptionClassAndMessage;
+import com.nikondsl.jupiter.logging.annotations.HideByExceptionMessage;
 import com.nikondsl.jupiter.logging.extension.LoggingExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -11,18 +10,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
-/**
- * This class demonstrates how to hide ALL exceptions from logs if all of them are expected during testing.
- * Just run tests and see that logs does not contain any printed exception.
- */
 @ExtendWith(LoggingExtension.class)
-public class HideByExceptionClassAndMessageDemoTest {
+public class HideByExceptionMessageDemoTest {
 
-    @HideByExceptionClassAndMessage({
-            @ClassAndMessage(clazz = NumberFormatException.class, message = "For input string:"),
-            @ClassAndMessage(clazz = IllegalArgumentException.class, message = "cannot be 0 or negative"),
-            @ClassAndMessage(clazz = NullPointerException.class, message = "Argument cannot be null")
-    })
+    @HideByExceptionMessage({"cannot be 0 or negative", "For input string:"})
     private static SecondsToMinutesUtils secsToMins;
 
     @BeforeAll

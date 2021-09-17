@@ -1,7 +1,9 @@
 package com.nikondsl.jupiter.logging;
 
 import com.nikondsl.jupiter.logging.adapters.AbstractLoggerAdapter;
+import com.nikondsl.jupiter.logging.adapters.LoggingSupported;
 import com.nikondsl.jupiter.logging.adapters.impl.Slf4JLoggerAdapter;
+import com.nikondsl.jupiter.logging.annotations.ClassAndMessage;
 import com.nikondsl.jupiter.logging.annotations.HideByExceptionClass;
 import com.nikondsl.jupiter.logging.annotations.HideByExceptionMessage;
 import com.nikondsl.jupiter.logging.extension.LoggingExtension;
@@ -21,12 +23,39 @@ public class Slf4jLoggingExtensionTest {
 
     private LoggingExtension loggingExtension = new LoggingExtension() {
         @Override
-        protected AbstractLoggerAdapter createLoggerAdapter(Object logger) {
-            return new Slf4JLoggerAdapter((Logger) logger) {
-                protected Object sanitize(Object arg) {
-                    Object result = super.sanitize(arg);
+        protected LoggingSupported createLoggerAdapter(Object logger) {
+            Slf4JLoggerAdapter adapter = new Slf4JLoggerAdapter((Logger) logger, null);
+            return new LoggingSupported() {
+                @Override
+                public boolean isClassAcceptableForReplacing(String className) {
+                    return adapter.isClassAcceptableForReplacing(className);
+                }
+
+                @Override
+                public void setExceptionClassesToHide(Class[] values) {
+                    adapter.setExceptionClassesToHide(values);
+                }
+
+                @Override
+                public void setExceptionMessagesToHide(String[] values) {
+                    adapter.setExceptionMessagesToHide(values);
+                }
+
+                @Override
+                public void setExceptionClassAndMessageToHide(ClassAndMessage[] values) {
+                    adapter.setExceptionClassAndMessageToHide(values);
+                }
+
+                @Override
+                public Object sanitize(Object arg) {
+                    Object result = adapter.sanitize(arg);
                     sanitized.put(arg, result);
                     return result;
+                }
+
+                @Override
+                public Object[] getSanitizedCopy(Object[] arguments) {
+                    return adapter.getSanitizedCopy(arguments);
                 }
             };
         }

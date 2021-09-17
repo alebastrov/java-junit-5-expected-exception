@@ -1,25 +1,49 @@
 package com.nikondsl.jupiter.logging.adapters.impl;
 
 import com.nikondsl.jupiter.logging.adapters.AbstractLoggerAdapter;
+import com.nikondsl.jupiter.logging.adapters.LoggingSupported;
 import com.nikondsl.jupiter.logging.annotations.ClassAndMessage;
 import org.slf4j.Logger;
 import org.slf4j.Marker;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+public class Slf4JLoggerAdapter implements LoggingSupported, org.slf4j.Logger {
 
-public class Slf4JLoggerAdapter extends AbstractLoggerAdapter implements org.slf4j.Logger {
+    private Logger logger;
+    private AbstractLoggerAdapter delegate;
 
-    private org.slf4j.Logger logger;
-
-    public Slf4JLoggerAdapter(Logger delegate) {
-        logger = delegate;
+    public Slf4JLoggerAdapter(Logger logger, AbstractLoggerAdapter delegate) {
+        this.logger = logger;
+        this.delegate = delegate;
     }
 
     @Override
-    public boolean isFieldAcceptableForReplacing(String className) {
+    public boolean isClassAcceptableForReplacing(String className) {
         return "org.slf4j.Logger".equals(className);
+    }
+
+    @Override
+    public void setExceptionClassesToHide(Class[] values) {
+        delegate.setExceptionClassesToHide(values);
+    }
+
+    @Override
+    public void setExceptionMessagesToHide(String[] values) {
+        delegate.setExceptionMessagesToHide(values);
+    }
+
+    @Override
+    public void setExceptionClassAndMessageToHide(ClassAndMessage[] values) {
+        delegate.setExceptionClassAndMessageToHide(values);
+    }
+
+    @Override
+    public Object sanitize(Object arg) {
+        return delegate.sanitize(arg);
+    }
+
+    @Override
+    public Object[] getSanitizedCopy(Object[] arguments) {
+        return delegate.getSanitizedCopy(arguments);
     }
 
     /**
@@ -827,54 +851,6 @@ public class Slf4JLoggerAdapter extends AbstractLoggerAdapter implements org.slf
     @Override
     public void error(Marker marker, String msg, Throwable t) {
         logger.error(marker, msg, sanitize(t));
-    }
-
-    protected Object sanitize(Object arg) {
-        if (arg == null) {
-            return null;
-        }
-        if (arg instanceof Exception) {
-            if (exceptionsToHide.contains(arg.getClass())) {
-                return arg.getClass().getCanonicalName() + " is hidden by class";
-            }
-            if (!messagesToHide.isEmpty()) {
-                Optional<String> patternFound = messagesToHide
-                    .stream()
-                    .filter(pattern ->
-                            ((Exception) arg).getMessage().contains(pattern))
-                    .findAny();
-                if (patternFound.isPresent()) {
-                    return arg.getClass().getCanonicalName() + " is hidden by message:" + ((Exception) arg).getMessage();
-                }
-            }
-            if (!classAndMessageToHide.isEmpty()) {
-                Optional<ClassAndMessage> patternFound = classAndMessageToHide
-                    .stream()
-                    .filter(classAndMessage ->
-                            classAndMessage.clazz().getClassLoader() == arg.getClass().getClassLoader() &&
-                            classAndMessage.clazz() == arg.getClass() &&
-                            ((Exception) arg).getMessage().contains(classAndMessage.message()))
-                    .findAny();
-                if (patternFound.isPresent()) {
-                    return arg.getClass().getCanonicalName() + " is hidden by class: " +
-                            arg.getClass().getCanonicalName() + " and message:" +
-                            ((Exception) arg).getMessage();
-                }
-            }
-        }
-        return arg;
-    }
-
-    protected Object[] getSanitizedCopy(Object[] arguments) {
-        List<Object> result = new ArrayList<>();
-        for (Object obj : arguments) {
-            if (obj instanceof Exception) {
-                result.add(sanitize(obj));
-            } else {
-                result.add(obj);
-            }
-        }
-        return result.toArray();
     }
 
     public Logger getWrappedLogger() {

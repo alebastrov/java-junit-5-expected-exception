@@ -1,10 +1,10 @@
-package com.nikondsl.demo;
+package com.nikondsl.demo.log4j;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.log4j.Logger;
 
 public class SecondsToMinutesUtils {
-    private static Logger LOG = LoggerFactory.getLogger(SecondsToMinutesUtils.class);
+    private static Logger LOG = Logger.getLogger(SecondsToMinutesUtils.class);
 
     public int secsToMins(String seconds) {
         try {
@@ -13,7 +13,7 @@ public class SecondsToMinutesUtils {
             }
             return secsToMins(Integer.parseInt(seconds));
         } catch (Exception exception) {
-            LOG.error("Could not parse '{}' as integer", seconds, exception);
+            LOG.error("Could not parse '" + seconds + "' as integer", exception);
             throw exception;
         }
     }

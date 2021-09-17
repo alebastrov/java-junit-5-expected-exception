@@ -1,8 +1,8 @@
 package com.nikondsl.jupiter.logging.adapters;
 
+import com.nikondsl.jupiter.logging.adapters.impl.Log4jLoggerAdapter;
 import com.nikondsl.jupiter.logging.adapters.impl.Slf4JLoggerAdapter;
 import com.nikondsl.jupiter.logging.annotations.ClassAndMessage;
-import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,16 +12,21 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public abstract class AbstractLoggerAdapter {
-    private static List<AbstractLoggerAdapter> registeredAdapters = new ArrayList<>();
+public class AbstractLoggerAdapter {
+    private static List<LoggingSupported> registeredAdapters = new ArrayList<>();
+    private static AbstractLoggerAdapter instance = new AbstractLoggerAdapter();
 
     static {
-        registeredAdapters.add(new Slf4JLoggerAdapter(null));
+        registeredAdapters.add(new Slf4JLoggerAdapter(null, instance));
+        registeredAdapters.add(new Log4jLoggerAdapter(null, instance));
     }
 
-    public static AbstractLoggerAdapter createAdapter(Object logger) {
-        if (logger instanceof Logger) {
-            return new Slf4JLoggerAdapter((Logger) logger);
+    public static LoggingSupported createAdapter(Object logger) {
+        if (logger instanceof org.slf4j.Logger) {
+            return new Slf4JLoggerAdapter((org.slf4j.Logger) logger, instance);
+        }
+        if (logger instanceof org.apache.log4j.Logger) {
+            return new Log4jLoggerAdapter((org.apache.log4j.Logger) logger, instance);
         }
         return null;
     }
@@ -30,12 +35,10 @@ public abstract class AbstractLoggerAdapter {
     protected Set<String> messagesToHide = Collections.emptySet();
     protected List<ClassAndMessage> classAndMessageToHide = Collections.emptyList();
 
-    public abstract boolean isFieldAcceptableForReplacing(String className);
-
     public static boolean isLoggerSupported(String className) {
         Optional found = registeredAdapters
                 .stream()
-                .filter(adapter -> adapter.isFieldAcceptableForReplacing(className))
+                .filter(adapter -> adapter.isClassAcceptableForReplacing(className))
                 .findAny();
         return found.isPresent();
     }
@@ -56,5 +59,53 @@ public abstract class AbstractLoggerAdapter {
         if (values != null) {
             this.classAndMessageToHide = Arrays.asList(values);
         }
+    }
+
+    public Object sanitize(Object arg) {
+        if (arg == null) {
+            return null;
+        }
+        if (arg instanceof Exception) {
+            if (exceptionsToHide.contains(arg.getClass())) {
+                return new RuntimeException(arg.getClass().getCanonicalName() + " is hidden by class");
+            }
+            if (!messagesToHide.isEmpty()) {
+                Optional<String> patternFound = messagesToHide
+                        .stream()
+                        .filter(pattern ->
+                                ((Exception) arg).getMessage().contains(pattern))
+                        .findAny();
+                if (patternFound.isPresent()) {
+                    return new RuntimeException(arg.getClass().getCanonicalName() + " is hidden by message:" + ((Exception) arg).getMessage());
+                }
+            }
+            if (!classAndMessageToHide.isEmpty()) {
+                Optional<ClassAndMessage> patternFound = classAndMessageToHide
+                        .stream()
+                        .filter(classAndMessage ->
+                                classAndMessage.clazz().getClassLoader() == arg.getClass().getClassLoader() &&
+                                        classAndMessage.clazz() == arg.getClass() &&
+                                        ((Exception) arg).getMessage().contains(classAndMessage.message()))
+                        .findAny();
+                if (patternFound.isPresent()) {
+                    return new RuntimeException(arg.getClass().getCanonicalName() + " is hidden by class: " +
+                            arg.getClass().getCanonicalName() + " and message:" +
+                            ((Exception) arg).getMessage());
+                }
+            }
+        }
+        return arg;
+    }
+
+    public Object[] getSanitizedCopy(Object[] arguments) {
+        List<Object> result = new ArrayList<>();
+        for (Object obj : arguments) {
+            if (obj instanceof Exception) {
+                result.add(sanitize(obj));
+            } else {
+                result.add(obj);
+            }
+        }
+        return result.toArray();
     }
 }

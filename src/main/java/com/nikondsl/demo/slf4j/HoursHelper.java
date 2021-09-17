@@ -1,4 +1,4 @@
-package com.nikondsl.demo;
+package com.nikondsl.demo.slf4j;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
