@@ -26,6 +26,22 @@ public class SecondsToMinutesUtilsExceptionTest {
     ...
 ~~~
 
+There is also another way to set up rules for suppressing the logs outside a target class
+~~~
+@ExtendWith(LoggingExtension.class)
+@ClassesToWrapLoggers({HoursHelper.class})
+@HideByExceptionClassAndMessage({
+    @ClassAndMessage(clazz = IllegalArgumentException.class, message = "Error: obvious"),
+})
+public class ReplaceOutsideDemoTest {
+    private static HoursHelper<Double, Double> hoursHelper;
+...
+~~~
+in that case you may define as many class loggers as you need, not necessary for target class in test.
+In example above we can see the target class for testing does not have anny annotation, as desired exceptions 
+appear in other class (actually in the example it is the HoursHelper class) and we need to suppress exceptions 
+from it.
+
 @ExtendWith(LoggingExtension.class) enables that plugin and one of:
 - @HideByExceptionClass(Class[]) allows you to filter out exception classes you're expecting to be thrown
 for the tested class.
@@ -42,5 +58,4 @@ but exception message is still there.
 
 Note: it likely will not work with final fields, so you perhaps will need also remove 'final' modifier inside the class.
 Note: default class for hiding is ReflectiveOperationException.
-
-@ToDo add list of static members of classes to replace loggers!
+Note: after test class being processed all extra settings revoked and loggers become unwrapped.
