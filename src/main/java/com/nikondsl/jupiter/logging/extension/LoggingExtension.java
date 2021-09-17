@@ -134,6 +134,10 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
                 lookForLogger.getType().isEnum()) {
                 continue;
             }
+            if (!"org.slf4j.Logger".equals(lookForLogger.getType().getCanonicalName()) &&
+                !((Class) lookForLogger.getGenericType()).isInterface()) {
+                continue;
+            }
             Object possibleLogger = lookForLogger.get(toInjectNewLogger);
             if (possibleLogger instanceof Logger) {
                 setUpLogger(toInjectNewLogger.getClass().getCanonicalName(),
