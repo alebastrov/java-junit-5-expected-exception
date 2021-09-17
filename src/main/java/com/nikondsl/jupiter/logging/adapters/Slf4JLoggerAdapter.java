@@ -839,19 +839,22 @@ public class Slf4JLoggerAdapter implements org.slf4j.Logger {
             }
             if (!messagesToHide.isEmpty()) {
                 Optional<String> patternFound = messagesToHide
-                        .stream()
-                        .filter(pattern -> ((Exception) arg).getMessage().contains(pattern))
-                        .findAny();
+                    .stream()
+                    .filter(pattern ->
+                            ((Exception) arg).getMessage().contains(pattern))
+                    .findAny();
                 if (patternFound.isPresent()) {
                     return arg.getClass().getCanonicalName() + " is hidden by message:" + ((Exception) arg).getMessage();
                 }
             }
             if (!classAndMessageToHide.isEmpty()) {
                 Optional<ClassAndMessage> patternFound = classAndMessageToHide
-                        .stream()
-                        .filter(classAndMessage -> classAndMessage.clazz() == arg.getClass() &&
-                                ((Exception) arg).getMessage().contains(classAndMessage.message()))
-                        .findAny();
+                    .stream()
+                    .filter(classAndMessage ->
+                            classAndMessage.clazz().getClassLoader() == arg.getClass().getClassLoader() &&
+                            classAndMessage.clazz() == arg.getClass() &&
+                            ((Exception) arg).getMessage().contains(classAndMessage.message()))
+                    .findAny();
                 if (patternFound.isPresent()) {
                     return arg.getClass().getCanonicalName() + " is hidden by class: " +
                             arg.getClass().getCanonicalName() + " and message:" +
