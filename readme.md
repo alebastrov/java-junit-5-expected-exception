@@ -59,3 +59,5 @@ but exception message is still there.
 Note: it likely will not work with final fields, so you perhaps will need also remove 'final' modifier inside the class.
 Note: default class for hiding is ReflectiveOperationException.
 Note: after test class being processed all extra settings revoked and loggers become unwrapped.
+
+@ToDo do the same for particular test,not only for test class
