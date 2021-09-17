@@ -32,11 +32,6 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
                                         ExtensionContext context) throws Exception {
         //take a field to set up new logger
         Class clazz = testInstance.getClass();
-        Class[] toReplaceLoggers = new Class[0];
-        if (clazz.isAnnotationPresent(ClassesToWrapLoggers.class)) {
-            ClassesToWrapLoggers annotation = (ClassesToWrapLoggers) clazz.getAnnotation(ClassesToWrapLoggers.class);
-            toReplaceLoggers = annotation.value();
-        }
         for (Field field : clazz.getDeclaredFields()) {
             if (!field.isAnnotationPresent(HideByExceptionClass.class) &&
                 !field.isAnnotationPresent(HideByExceptionMessage.class) &&
@@ -44,23 +39,13 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
                 continue;
             }
 
-            String anno = "HideByExceptionMessage";
-            Class[] classesToHide = null;
-            String[] messagesToHide = null;
-            ClassAndMessage[] classAndMessageToHide = null;
-            if (field.isAnnotationPresent(HideByExceptionClass.class)) {
-                anno = "HideByExceptionClass";
-                classesToHide = field.getAnnotation(HideByExceptionClass.class).value();
-            }
-            if (field.isAnnotationPresent(HideByExceptionMessage.class)) {
-                anno = "HideByExceptionClass";
-                messagesToHide = field.getAnnotation(HideByExceptionMessage.class).value();
-            }
-            if (field.isAnnotationPresent(HideByExceptionClassAndMessage.class)) {
-                anno = "HideByExceptionClassAndMessage";
-                classAndMessageToHide = field.getAnnotation(HideByExceptionClassAndMessage.class).value();
-            }
+            Class[] classesToHide = getHideByExceptionClassValue(field, null);
+            String[] messagesToHide = getHideByMessageValue(field, null);
+            ClassAndMessage[] classAndMessageToHide = getHideByMessageAndClassValue(field, null);
+
+            String anno = getAnnoUsed(classesToHide, messagesToHide, classAndMessageToHide);
             LOG.debug("Field with annotation @" + anno + " is found in class: " + clazz.getCanonicalName());
+
             // do only for annotated fields in test class
             field.setAccessible(true);
             Object toInjectNewLogger = field.get(testInstance);
@@ -69,14 +54,66 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
                 LOG.error("Field with annotation @" + anno + " is not initialized now");
                 throw new IllegalStateException("@" + anno + " annotated field (" + field.getName() + ") is null");
             }
-            boolean newLoggerSet = lookForAndReplaceLogger(classesToHide, messagesToHide, classAndMessageToHide, toInjectNewLogger);
-            for (Class toReplaceLogger : toReplaceLoggers) {
-                newLoggerSet |= lookForAndReplaceLogger(classesToHide, messagesToHide, classAndMessageToHide, toReplaceLogger);
-            }
-            if (!newLoggerSet) {
+            if (!lookForAndReplaceLogger(classesToHide, messagesToHide, classAndMessageToHide, toInjectNewLogger)) {
                 LOG.warn("Logger field is not found in class: " + toInjectNewLogger.getClass().getCanonicalName());
             }
         }
+        if (clazz.isAnnotationPresent(ClassesToWrapLoggers.class)) {
+            ClassesToWrapLoggers toReplaceLoggers = (ClassesToWrapLoggers) clazz.getAnnotation(ClassesToWrapLoggers.class);
+            for (Class toReplaceLogger : toReplaceLoggers.value()) {
+                if (!lookForAndReplaceLogger(
+                        getHideByExceptionClassValue(null, clazz),
+                        getHideByMessageValue(null, clazz),
+                        getHideByMessageAndClassValue(null, clazz),
+                        (Class) toReplaceLogger)) {
+                    LOG.warn("Logger field is not found in class: " + toReplaceLogger.getClass().getCanonicalName());
+                }
+            }
+        }
+    }
+
+    private String getAnnoUsed(Class[] classesToHide, String[] messagesToHide, ClassAndMessage[] classAndMessageToHide) {
+        String anno = "HideByExceptionMessage";
+        if (classesToHide != null) {
+            anno = "HideByExceptionClass";
+        }
+        if (messagesToHide != null) {
+            anno = "HideByExceptionMessage";
+        }
+        if (classAndMessageToHide != null) {
+            anno = "HideByExceptionClassAndMessage";
+        }
+        return anno;
+    }
+
+    private Class[] getHideByExceptionClassValue(Field field, Class clazz) {
+        if (field != null && field.isAnnotationPresent(HideByExceptionClass.class)) {
+            return field.getAnnotation(HideByExceptionClass.class).value();
+        }
+        if (clazz != null && clazz.isAnnotationPresent(HideByExceptionClass.class)) {
+            return ((HideByExceptionClass) clazz.getAnnotation(HideByExceptionClass.class)).value();
+        }
+        return null;
+    }
+
+    private String[] getHideByMessageValue(Field field, Class clazz) {
+        if (field != null && field.isAnnotationPresent(HideByExceptionMessage.class)) {
+            return field.getAnnotation(HideByExceptionMessage.class).value();
+        }
+        if (clazz != null && clazz.isAnnotationPresent(HideByExceptionMessage.class)) {
+            return ((HideByExceptionMessage) clazz.getAnnotation(HideByExceptionMessage.class)).value();
+        }
+        return null;
+    }
+
+    private ClassAndMessage[] getHideByMessageAndClassValue(Field field, Class clazz) {
+        if (field != null && field.isAnnotationPresent(HideByExceptionClassAndMessage.class)) {
+            return field.getAnnotation(HideByExceptionClassAndMessage.class).value();
+        }
+        if (clazz != null && clazz.isAnnotationPresent(HideByExceptionClassAndMessage.class)) {
+            return ((HideByExceptionClassAndMessage) clazz.getAnnotation(HideByExceptionClassAndMessage.class)).value();
+        }
+        return null;
     }
 
     private boolean lookForAndReplaceLogger(Class[] classesToHide,
@@ -84,7 +121,13 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
                                             ClassAndMessage[] classAndMessageToHide,
                                             Object toInjectNewLogger) throws ReflectiveOperationException {
         boolean newLoggerSet = false;
-        for (Field lookForLogger : toInjectNewLogger.getClass().getDeclaredFields()) {
+        Field[] fields = null;
+        if (toInjectNewLogger instanceof Class) {
+            fields = ((Class) toInjectNewLogger).getDeclaredFields();
+        } else {
+            fields = toInjectNewLogger.getClass().getDeclaredFields();
+        }
+        for (Field lookForLogger : fields) {
             lookForLogger.setAccessible(true);
             Object possibleLogger = lookForLogger.get(toInjectNewLogger);
             if (possibleLogger instanceof Logger) {

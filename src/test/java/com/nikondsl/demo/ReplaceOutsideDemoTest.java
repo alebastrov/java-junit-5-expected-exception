@@ -18,11 +18,11 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 @ExtendWith(LoggingExtension.class)
 @ClassesToWrapLoggers({HoursHelper.class})
+@HideByExceptionClassAndMessage({
+        @ClassAndMessage(clazz = IllegalArgumentException.class, message = "Error: obvious"),
+})
 public class ReplaceOutsideDemoTest {
 
-    @HideByExceptionClassAndMessage({
-            @ClassAndMessage(clazz = IllegalArgumentException.class, message = "Error: obvious"),
-    })
     private static HoursHelper<Double, Double> hoursHelper;
 
     @BeforeAll
