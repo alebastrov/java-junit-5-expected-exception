@@ -56,7 +56,7 @@ That replacement (LoggerAdaptor) class is wrapping real SLF4J logger and every t
 an exception it checks if that exception is needed to be hidden. If so - logger skips logging it, 
 but exception message is still there.
 
-Note: it likely will not work with final fields, so you perhaps will need also remove 'final' modifier inside the class.
+Note: it likely will not work with 'final' fields, so you will need to remove 'final' modifier inside for that Loggers.
 Note: default class for hiding is ReflectiveOperationException.
 Note: after test class being processed all extra settings revoked and loggers become unwrapped.
 
