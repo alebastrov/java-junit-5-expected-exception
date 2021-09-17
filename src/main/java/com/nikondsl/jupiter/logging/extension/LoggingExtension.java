@@ -1,7 +1,8 @@
 package com.nikondsl.jupiter.logging.extension;
 
 
-import com.nikondsl.jupiter.logging.adapters.Slf4JLoggerAdapter;
+import com.nikondsl.jupiter.logging.adapters.AbstractLoggerAdapter;
+import com.nikondsl.jupiter.logging.adapters.impl.Slf4JLoggerAdapter;
 import com.nikondsl.jupiter.logging.annotations.ClassAndMessage;
 import com.nikondsl.jupiter.logging.annotations.ClassesToWrapLoggers;
 import com.nikondsl.jupiter.logging.annotations.HideByExceptionClass;
@@ -134,21 +135,23 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
                 lookForLogger.getType().isEnum()) {
                 continue;
             }
-            if (!"org.slf4j.Logger".equals(lookForLogger.getType().getCanonicalName()) &&
-                !((Class) lookForLogger.getGenericType()).isInterface()) {
+            if (!AbstractLoggerAdapter.isLoggerSupported(lookForLogger.getType().getCanonicalName())) {
                 continue;
             }
             Object possibleLogger = lookForLogger.get(toInjectNewLogger);
-            if (possibleLogger instanceof Logger) {
+            AbstractLoggerAdapter loggerAdapter = createLoggerAdapter(possibleLogger);
+
+            if (loggerAdapter != null) {
                 setUpLogger(toInjectNewLogger.getClass().getCanonicalName(),
                         lookForLogger,
                         toInjectNewLogger,
-                        (Logger) possibleLogger,
+                        loggerAdapter,
                         classesToHide,
                         messagesToHide,
                         classAndMessageToHide);
                 newLoggerSet = true;
             }
+
         }
         return newLoggerSet;
     }
@@ -156,13 +159,13 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
     private void setUpLogger(String className,
                              Field field,
                              Object toInjectNewLogger,
-                             Logger logger,
+                             AbstractLoggerAdapter loggerAdapter,
                              Class[] classesToHide,
                              String[] messagesToHide,
                              ClassAndMessage[] classAndMessageToHide) throws ReflectiveOperationException {
         LOG.debug("Setting up logger into '" + className +
                 "." + field.getName() + "' with " + parameters(classesToHide, messagesToHide, classAndMessageToHide));
-        Slf4JLoggerAdapter loggerAdapter = createLoggerAdaptor(logger);
+
         loggerAdapter.setExceptionClassesToHide(classesToHide);
         loggerAdapter.setExceptionMessagesToHide(messagesToHide);
         loggerAdapter.setExceptionClassAndMessageToHide(classAndMessageToHide);
@@ -208,14 +211,14 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
         return result.toString();
     }
 
-    protected Slf4JLoggerAdapter createLoggerAdaptor(Logger logger) {
-        return new Slf4JLoggerAdapter(logger);
+    protected AbstractLoggerAdapter createLoggerAdapter(Object logger) {
+        return AbstractLoggerAdapter.createAdapter(logger);
     }
 
     static void trySetStaticField(String className,
                                   Field field,
                                   Object toInjectNewLogger,
-                                  Slf4JLoggerAdapter newValue)
+                                  AbstractLoggerAdapter newValue)
             throws ReflectiveOperationException {
         field.setAccessible(true);
 

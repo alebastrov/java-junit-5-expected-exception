@@ -1,25 +1,25 @@
-package com.nikondsl.jupiter.logging.adapters;
+package com.nikondsl.jupiter.logging.adapters.impl;
 
+import com.nikondsl.jupiter.logging.adapters.AbstractLoggerAdapter;
 import com.nikondsl.jupiter.logging.annotations.ClassAndMessage;
 import org.slf4j.Logger;
 import org.slf4j.Marker;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
-public class Slf4JLoggerAdapter implements org.slf4j.Logger {
+public class Slf4JLoggerAdapter extends AbstractLoggerAdapter implements org.slf4j.Logger {
+
     private org.slf4j.Logger logger;
-    private Set<Class> exceptionsToHide = Collections.emptySet();
-    private Set<String> messagesToHide = Collections.emptySet();
-    private List<ClassAndMessage> classAndMessageToHide = Collections.emptyList();
 
     public Slf4JLoggerAdapter(Logger delegate) {
         logger = delegate;
+    }
+
+    @Override
+    public boolean isFieldAcceptableForReplacing(String className) {
+        return "org.slf4j.Logger".equals(className);
     }
 
     /**
@@ -875,24 +875,6 @@ public class Slf4JLoggerAdapter implements org.slf4j.Logger {
             }
         }
         return result.toArray();
-    }
-
-    public void setExceptionClassesToHide(Class[] values) {
-        if (values != null) {
-            this.exceptionsToHide = new HashSet<>(Arrays.asList(values));
-        }
-    }
-
-    public void setExceptionMessagesToHide(String[] values) {
-        if (values != null) {
-            this.messagesToHide = new HashSet<>(Arrays.asList(values));
-        }
-    }
-
-    public void setExceptionClassAndMessageToHide(ClassAndMessage[] values) {
-        if (values != null) {
-            this.classAndMessageToHide = Arrays.asList(values);
-        }
     }
 
     public Logger getWrappedLogger() {

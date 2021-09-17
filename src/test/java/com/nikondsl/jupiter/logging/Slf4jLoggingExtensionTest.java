@@ -1,6 +1,7 @@
 package com.nikondsl.jupiter.logging;
 
-import com.nikondsl.jupiter.logging.adapters.Slf4JLoggerAdapter;
+import com.nikondsl.jupiter.logging.adapters.AbstractLoggerAdapter;
+import com.nikondsl.jupiter.logging.adapters.impl.Slf4JLoggerAdapter;
 import com.nikondsl.jupiter.logging.annotations.HideByExceptionClass;
 import com.nikondsl.jupiter.logging.annotations.HideByExceptionMessage;
 import com.nikondsl.jupiter.logging.extension.LoggingExtension;
@@ -15,13 +16,13 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class LoggingExtensionTest {
+public class Slf4jLoggingExtensionTest {
     private Map<Object, Object> sanitized = new LinkedHashMap<>();
 
     private LoggingExtension loggingExtension = new LoggingExtension() {
         @Override
-        protected Slf4JLoggerAdapter createLoggerAdaptor(Logger logger) {
-            return new Slf4JLoggerAdapter(logger) {
+        protected AbstractLoggerAdapter createLoggerAdapter(Object logger) {
+            return new Slf4JLoggerAdapter((Logger) logger) {
                 protected Object sanitize(Object arg) {
                     Object result = super.sanitize(arg);
                     sanitized.put(arg, result);
@@ -79,10 +80,5 @@ public class LoggingExtensionTest {
             assertEquals("java.lang.NullPointerException is hidden by message:FYI message", values.get(0));
             assertEquals("java.lang.NullPointerException is hidden by message:FYI message", values.get(1));
         }
-
-
-
-
-
     }
 }
