@@ -67,7 +67,7 @@ public class AbstractLoggerAdapter {
         }
         if (arg instanceof Exception) {
             if (exceptionsToHide.contains(arg.getClass())) {
-                return new RuntimeException(arg.getClass().getCanonicalName() + " is hidden by class");
+                return (arg.getClass().getCanonicalName() + " is hidden by class");
             }
             if (!messagesToHide.isEmpty()) {
                 Optional<String> patternFound = messagesToHide
@@ -76,7 +76,7 @@ public class AbstractLoggerAdapter {
                                 ((Exception) arg).getMessage().contains(pattern))
                         .findAny();
                 if (patternFound.isPresent()) {
-                    return new RuntimeException(arg.getClass().getCanonicalName() + " is hidden by message:" + ((Exception) arg).getMessage());
+                    return (arg.getClass().getCanonicalName() + " is hidden by message:" + ((Exception) arg).getMessage());
                 }
             }
             if (!classAndMessageToHide.isEmpty()) {
@@ -88,7 +88,7 @@ public class AbstractLoggerAdapter {
                                         ((Exception) arg).getMessage().contains(classAndMessage.message()))
                         .findAny();
                 if (patternFound.isPresent()) {
-                    return new RuntimeException(arg.getClass().getCanonicalName() + " is hidden by class: " +
+                    return (arg.getClass().getCanonicalName() + " is hidden by class: " +
                             arg.getClass().getCanonicalName() + " and message:" +
                             ((Exception) arg).getMessage());
                 }

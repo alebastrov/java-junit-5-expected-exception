@@ -64,7 +64,12 @@ public class Log4jLoggerAdapter extends Logger implements LoggingSupported {
     }
 
     public void trace(Object message, Throwable t) {
-        logger.trace(message, (Throwable) sanitize(t));
+        Object sanitized = sanitize(t);
+        if (sanitized instanceof Throwable) {
+            logger.trace(message, (Throwable) sanitized);
+        } else {
+            logger.trace(message + " " + sanitized);
+        }
     }
 
     public boolean isTraceEnabled() {
@@ -88,7 +93,12 @@ public class Log4jLoggerAdapter extends Logger implements LoggingSupported {
     }
 
     public void debug(Object message, Throwable t) {
-        logger.debug(message, (Throwable) sanitize(t));
+        Object sanitized = sanitize(t);
+        if (sanitized instanceof Throwable) {
+            logger.debug(message, (Throwable) sanitized);
+        } else {
+            logger.debug(message + " " + sanitized);
+        }
     }
 
     public void error(Object message) {
@@ -96,7 +106,12 @@ public class Log4jLoggerAdapter extends Logger implements LoggingSupported {
     }
 
     public void error(Object message, Throwable t) {
-        logger.error(message, (Throwable) sanitize(t));
+        Object sanitized = sanitize(t);
+        if (sanitized instanceof Throwable) {
+            logger.error(message, (Throwable) sanitized);
+        } else {
+            logger.error(message + " " + sanitized);
+        }
     }
 
     public void fatal(Object message) {
@@ -104,7 +119,12 @@ public class Log4jLoggerAdapter extends Logger implements LoggingSupported {
     }
 
     public void fatal(Object message, Throwable t) {
-        logger.fatal(message, (Throwable) sanitize(t));
+        Object sanitized = sanitize(t);
+        if (sanitized instanceof Throwable) {
+            logger.fatal(message, (Throwable) sanitized);
+        } else {
+            logger.fatal(message + " " + sanitized);
+        }
     }
 
     public boolean getAdditivity() {
