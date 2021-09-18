@@ -246,10 +246,11 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
     public void preDestroyTestInstance(ExtensionContext extensionContext) throws Exception {
         for(Map.Entry<Object, List<Field>> entry : toRevert.entrySet()) {
             for (Field field : entry.getValue()) {
-                Logger logger = (Logger) field.get(entry.getKey());
-                if (logger instanceof Slf4JLoggerAdapter) {
-                    field.set(entry.getKey(), ((Slf4JLoggerAdapter) logger).getWrappedLogger());
-                    LOG.debug("Old Logger is reverted for field '" + field.getName() + "' in class: " +
+                if (field.get(entry.getKey()) instanceof LoggingSupported) {
+                    LoggingSupported logger = (LoggingSupported) field.get(entry.getKey());
+                    logger.unwrap(field, entry.getKey());
+                    LOG.debug("Old Logger is reverted for field '" + field.getName() +
+                            "' in class: " +
                             entry.getKey().getClass().getCanonicalName());
                 }
             }

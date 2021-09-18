@@ -10,6 +10,7 @@ import org.apache.log4j.Priority;
 import org.apache.log4j.spi.LoggerRepository;
 import org.apache.log4j.spi.LoggingEvent;
 
+import java.lang.reflect.Field;
 import java.util.Enumeration;
 import java.util.ResourceBundle;
 
@@ -51,6 +52,11 @@ public class Log4jLoggerAdapter extends Logger implements LoggingSupported {
     @Override
     public Object[] getSanitizedCopy(Object[] arguments) {
         return delegate.getSanitizedCopy(arguments);
+    }
+
+    @Override
+    public void unwrap(Field field, Object key) throws ReflectiveOperationException {
+        field.set(key, logger);
     }
 
     public void trace(Object message) {

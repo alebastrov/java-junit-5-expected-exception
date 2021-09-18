@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -56,6 +57,11 @@ public class Slf4jLoggingExtensionTest {
                 @Override
                 public Object[] getSanitizedCopy(Object[] arguments) {
                     return adapter.getSanitizedCopy(arguments);
+                }
+
+                @Override
+                public void unwrap(Field field, Object key) throws ReflectiveOperationException {
+                    adapter.unwrap(field, key);
                 }
             };
         }

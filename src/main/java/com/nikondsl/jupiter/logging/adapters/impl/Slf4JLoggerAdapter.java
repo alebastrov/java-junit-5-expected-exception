@@ -6,6 +6,8 @@ import com.nikondsl.jupiter.logging.annotations.ClassAndMessage;
 import org.slf4j.Logger;
 import org.slf4j.Marker;
 
+import java.lang.reflect.Field;
+
 public class Slf4JLoggerAdapter implements LoggingSupported, org.slf4j.Logger {
 
     private Logger logger;
@@ -44,6 +46,11 @@ public class Slf4JLoggerAdapter implements LoggingSupported, org.slf4j.Logger {
     @Override
     public Object[] getSanitizedCopy(Object[] arguments) {
         return delegate.getSanitizedCopy(arguments);
+    }
+
+    @Override
+    public void unwrap(Field field, Object key) throws ReflectiveOperationException {
+        field.set(key, logger);
     }
 
     /**
@@ -851,9 +858,5 @@ public class Slf4JLoggerAdapter implements LoggingSupported, org.slf4j.Logger {
     @Override
     public void error(Marker marker, String msg, Throwable t) {
         logger.error(marker, msg, sanitize(t));
-    }
-
-    public Logger getWrappedLogger() {
-        return logger;
     }
 }
