@@ -11,10 +11,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AbstractLoggerAdapter {
     private static List<LoggingSupported> registeredAdapters = new ArrayList<>();
     private static AbstractLoggerAdapter instance = new AbstractLoggerAdapter();
+    private AtomicBoolean suspendLogic = new AtomicBoolean();
 
     static {
         registeredAdapters.add(new Slf4JLoggerAdapter(null, instance));
@@ -61,11 +63,18 @@ public class AbstractLoggerAdapter {
         }
     }
 
+    public void setSuspendLogic(AtomicBoolean suspendLogic) {
+        this.suspendLogic = suspendLogic;
+    }
+
     public Object sanitize(Object arg) {
         if (arg == null) {
             return null;
         }
         if (arg instanceof Exception) {
+            if (suspendLogic.get()) {
+                return (arg.getClass().getCanonicalName() + " is suspended");
+            }
             if (exceptionsToHide.contains(arg.getClass())) {
                 return (arg.getClass().getCanonicalName() + " is hidden by class");
             }

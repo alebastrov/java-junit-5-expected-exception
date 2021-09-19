@@ -13,6 +13,7 @@ import org.apache.log4j.spi.LoggingEvent;
 import java.lang.reflect.Field;
 import java.util.Enumeration;
 import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Log4jLoggerAdapter extends Logger implements LoggingSupported {
     private Logger logger;
@@ -42,6 +43,11 @@ public class Log4jLoggerAdapter extends Logger implements LoggingSupported {
     @Override
     public void setExceptionClassAndMessageToHide(ClassAndMessage[] values) {
         delegate.setExceptionClassAndMessageToHide(values);
+    }
+
+    @Override
+    public void setSuspendLogging(AtomicBoolean suspendLogging) {
+        delegate.setSuspendLogic(suspendLogging);
     }
 
     @Override

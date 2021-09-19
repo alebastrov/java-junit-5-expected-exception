@@ -3,7 +3,6 @@ package com.nikondsl.jupiter.logging.extension;
 
 import com.nikondsl.jupiter.logging.adapters.AbstractLoggerAdapter;
 import com.nikondsl.jupiter.logging.adapters.LoggingSupported;
-import com.nikondsl.jupiter.logging.adapters.impl.Slf4JLoggerAdapter;
 import com.nikondsl.jupiter.logging.annotations.ClassAndMessage;
 import com.nikondsl.jupiter.logging.annotations.ClassesToWrapLoggers;
 import com.nikondsl.jupiter.logging.annotations.HideByExceptionClass;
@@ -24,10 +23,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LoggingExtension implements TestInstancePostProcessor, TestInstancePreDestroyCallback {
     private static Logger LOG = LoggerFactory.getLogger(LoggingExtension.class);
     private static ConcurrentMap<Object, List<Field>> toRevert = new ConcurrentHashMap<>();
+    private static AtomicBoolean suspendLogging = new AtomicBoolean();
 
     @Override
     public void postProcessTestInstance(Object testInstance,
@@ -35,7 +36,8 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
         //take a field to set up new logger
         Class clazz = testInstance.getClass();
         for (Field field : clazz.getDeclaredFields()) {
-            if (!field.isAnnotationPresent(HideByExceptionClass.class) &&
+            if (!suspendLogging.get() &&
+                !field.isAnnotationPresent(HideByExceptionClass.class) &&
                 !field.isAnnotationPresent(HideByExceptionMessage.class) &&
                 !field.isAnnotationPresent(HideByExceptionClassAndMessage.class)) {
                 continue;
@@ -166,7 +168,7 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
                              ClassAndMessage[] classAndMessageToHide) throws ReflectiveOperationException {
         LOG.debug("Setting up logger into '" + className +
                 "." + field.getName() + "' with " + parameters(classesToHide, messagesToHide, classAndMessageToHide));
-
+        loggerAdapter.setSuspendLogging(suspendLogging);
         loggerAdapter.setExceptionClassesToHide(classesToHide);
         loggerAdapter.setExceptionMessagesToHide(messagesToHide);
         loggerAdapter.setExceptionClassAndMessageToHide(classAndMessageToHide);
@@ -255,5 +257,9 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
                 }
             }
         }
+    }
+
+    public static void setSuspendLogging(boolean suspendLogging) {
+        LoggingExtension.suspendLogging = new AtomicBoolean(suspendLogging);
     }
 }

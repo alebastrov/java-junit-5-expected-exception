@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.Marker;
 
 import java.lang.reflect.Field;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Slf4JLoggerAdapter implements LoggingSupported, org.slf4j.Logger {
 
@@ -36,6 +37,11 @@ public class Slf4JLoggerAdapter implements LoggingSupported, org.slf4j.Logger {
     @Override
     public void setExceptionClassAndMessageToHide(ClassAndMessage[] values) {
         delegate.setExceptionClassAndMessageToHide(values);
+    }
+
+    @Override
+    public void setSuspendLogging(AtomicBoolean suspendLogging) {
+        delegate.setSuspendLogic(suspendLogging);
     }
 
     @Override

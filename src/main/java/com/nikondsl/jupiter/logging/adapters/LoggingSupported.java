@@ -4,16 +4,17 @@ import com.nikondsl.jupiter.logging.annotations.ClassAndMessage;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Field;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public interface LoggingSupported {
 
-    public boolean isClassAcceptableForReplacing(String className);
-
-    public void setExceptionClassesToHide(Class[] values);
-    public void setExceptionMessagesToHide(String[] values);
-    public void setExceptionClassAndMessageToHide(ClassAndMessage[] values);
-    public Object sanitize(Object arg);
-    public Object[] getSanitizedCopy(Object[] arguments);
+    boolean isClassAcceptableForReplacing(String className);
+    void setExceptionClassesToHide(Class[] values);
+    void setExceptionMessagesToHide(String[] values);
+    void setExceptionClassAndMessageToHide(ClassAndMessage[] values);
+    void setSuspendLogging(AtomicBoolean suspendLogging);
+    Object sanitize(Object arg);
+    Object[] getSanitizedCopy(Object[] arguments);
 
     void unwrap(Field field, Object key) throws ReflectiveOperationException;
 }
