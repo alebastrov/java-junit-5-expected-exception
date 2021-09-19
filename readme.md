@@ -3,9 +3,13 @@ This project based on Junit5 and SLF4J helps you with garbage in logs while runn
 If your test expects some exception (negative path testing) you probably will want not to see them 
 in logs in order to have them clear
 
-All you should do is just add @ExtendWith annotations to your test class and one of 
-@HideByExceptionClass or @HideByExceptionMessage or @HideByExceptionClassAndMessage 
-to the tested field, which exceptions with it should be hidden
+All you should do is just add @ExtendWith annotations to your test class and one of the following:
+- add annotation @HideByExceptionClass (*)
+- add annotation @HideByExceptionMessage (*)
+- add annotation @HideByExceptionClassAndMessage (*)
+- set up true to LoggingExtension.setSuspendLogging(true);
+
+* May be set to the tested field in test class, which exceptions with it should be hidden or to the whole class.
 
 ~~~
 @ExtendWith(LoggingExtension.class)
