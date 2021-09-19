@@ -41,7 +41,9 @@ public class Slf4JLoggerAdapter implements LoggingSupported, org.slf4j.Logger {
 
     @Override
     public void setSuspendLogging(AtomicBoolean suspendLogging) {
-        delegate.setSuspendLogic(suspendLogging);
+        if (delegate != null) {
+            delegate.setSuspendLogic(suspendLogging);
+        }
     }
 
     @Override

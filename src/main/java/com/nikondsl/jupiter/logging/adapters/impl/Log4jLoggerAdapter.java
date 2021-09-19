@@ -47,7 +47,9 @@ public class Log4jLoggerAdapter extends Logger implements LoggingSupported {
 
     @Override
     public void setSuspendLogging(AtomicBoolean suspendLogging) {
-        delegate.setSuspendLogic(suspendLogging);
+        if (delegate != null) {
+            delegate.setSuspendLogic(suspendLogging);
+        }
     }
 
     @Override
