@@ -26,13 +26,14 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LoggingExtension implements TestInstancePostProcessor, TestInstancePreDestroyCallback {
-    private static Logger LOG = LoggerFactory.getLogger(LoggingExtension.class);
-    private static ConcurrentMap<Object, List<Field>> toRevert = new ConcurrentHashMap<>();
+    private static final Logger LOG = LoggerFactory.getLogger(LoggingExtension.class);
+    private static final ConcurrentMap<Object, List<Field>> toRevert = new ConcurrentHashMap<>();
     private static AtomicBoolean suspendLogging = new AtomicBoolean();
 
     @Override
     public void postProcessTestInstance(Object testInstance,
                                         ExtensionContext context) throws Exception {
+        toRevert.clear();
         //take a field to set up new logger
         Class clazz = testInstance.getClass();
         for (Field field : clazz.getDeclaredFields()) {
@@ -233,7 +234,7 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
                 field.set(null, newValue);
                 addToRevert(toInjectNewLogger, field);
             } catch (IllegalAccessException ex) {
-                throw new RuntimeException("Please remove 'final' modifier from field '" +
+                throw new RuntimeException("Could not set wrapper for field. Please remove 'final' modifier from field '" +
                         field.getName() + "' in class '" + className + "'", ex);
             }
             return;
@@ -257,6 +258,7 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
                 }
             }
         }
+        toRevert.clear();
     }
 
     public static void setSuspendLogging(boolean suspendLogging) {
