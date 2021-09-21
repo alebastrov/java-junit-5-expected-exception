@@ -69,7 +69,7 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
                         getHideByExceptionClassValue(null, clazz),
                         getHideByMessageValue(null, clazz),
                         getHideByMessageAndClassValue(null, clazz),
-                        (Class) toReplaceLogger)) {
+                        toReplaceLogger)) {
                     LOG.warn("Logger field is not found in class: " + toReplaceLogger.getClass().getCanonicalName());
                 }
             }
