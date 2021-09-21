@@ -1,4 +1,5 @@
-This project based on Junit5 (SLF4J or Log4J by your choice) helps you with garbage in logs while running tests.
+This project based on Junit5 (SLF4J or Log4J or even Log4j2 by your choice) helps you with garbage 
+in logs while running tests.
 
 If your test expects some exception (negative path testing) you probably will want not to see them 
 in logs in order to have them clear

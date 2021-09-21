@@ -1,10 +1,13 @@
 package com.nikondsl.demo.log4j;
 
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.concurrent.TimeUnit;
 
 public class SecondsToMinutesUtils {
-    private static Logger LOG = Logger.getLogger(SecondsToMinutesUtils.class);
+    private static Logger LOG = LogManager.getLogger(SecondsToMinutesUtils.class);
 
     public int secsToMins(String seconds) {
         try {
@@ -13,9 +16,20 @@ public class SecondsToMinutesUtils {
             }
             return secsToMins(Integer.parseInt(seconds));
         } catch (Exception exception) {
+            LOG.debug("some", () -> doIt("123"));
             LOG.error("Could not parse '" + seconds + "' as integer", exception);
             throw exception;
         }
+    }
+
+    private String doIt(String s) {
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return "break";
+        }
+        return "wait";
     }
 
     public int secsToMins(int seconds) {

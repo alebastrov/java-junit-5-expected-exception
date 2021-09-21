@@ -1,5 +1,6 @@
 package com.nikondsl.jupiter.logging.adapters;
 
+import com.nikondsl.jupiter.logging.adapters.impl.Log4j2LoggerAdapter;
 import com.nikondsl.jupiter.logging.adapters.impl.Log4jLoggerAdapter;
 import com.nikondsl.jupiter.logging.adapters.impl.Slf4JLoggerAdapter;
 import com.nikondsl.jupiter.logging.annotations.ClassAndMessage;
@@ -21,6 +22,7 @@ public class AbstractLoggerAdapter {
     static {
         registeredAdapters.add(new Slf4JLoggerAdapter(null, instance));
         registeredAdapters.add(new Log4jLoggerAdapter(null, instance));
+        registeredAdapters.add(new Log4j2LoggerAdapter(instance));
     }
 
     public static LoggingSupported createAdapter(Object logger) {
@@ -29,6 +31,9 @@ public class AbstractLoggerAdapter {
         }
         if (logger instanceof org.apache.log4j.Logger) {
             return new Log4jLoggerAdapter((org.apache.log4j.Logger) logger, instance);
+        }
+        if (logger instanceof org.apache.logging.log4j.Logger) {
+            return new Log4j2LoggerAdapter((org.apache.logging.log4j.core.Logger) logger, instance);
         }
         return null;
     }
