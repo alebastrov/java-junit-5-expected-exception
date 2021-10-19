@@ -57,7 +57,7 @@ public class LoggerAdapterRepository {
         return (LoggingSupported) found.get();
     }
 
-    protected Set<Class> exceptionsToHide = Collections.emptySet();
+    protected Set<Class<? extends Throwable>> exceptionsToHide = Collections.emptySet();
     protected Set<String> messagesToHide = Collections.emptySet();
     protected List<ClassAndMessage> classAndMessageToHide = Collections.emptyList();
 
@@ -69,21 +69,27 @@ public class LoggerAdapterRepository {
         return found.isPresent();
     }
 
-    public void setExceptionClassesToHide(Class[] values) {
+    public void setExceptionClassesToHide(Class<? extends Throwable>[] values) {
         if (values != null) {
             this.exceptionsToHide = new HashSet<>(Arrays.asList(values));
+        } else {
+            this.exceptionsToHide = Collections.emptySet();
         }
     }
 
     public void setExceptionMessagesToHide(String[] values) {
         if (values != null) {
             this.messagesToHide = new HashSet<>(Arrays.asList(values));
+        } else {
+            this.messagesToHide = Collections.emptySet();
         }
     }
 
     public void setExceptionClassAndMessageToHide(ClassAndMessage[] values) {
         if (values != null) {
             this.classAndMessageToHide = Arrays.asList(values);
+        } else {
+            this.classAndMessageToHide = Collections.emptyList();
         }
     }
 
@@ -104,10 +110,10 @@ public class LoggerAdapterRepository {
             }
             if (!messagesToHide.isEmpty()) {
                 Optional<String> patternFound = messagesToHide
-                        .stream()
-                        .filter(pattern ->
-                                ((Exception) arg).getMessage().contains(pattern))
-                        .findAny();
+                    .stream()
+                    .filter(pattern ->
+                            ((Exception) arg).getMessage() != null && ((Exception) arg).getMessage().contains(pattern))
+                    .findAny();
                 if (patternFound.isPresent()) {
                     return (arg.getClass().getCanonicalName() + " is hidden by message:" + ((Exception) arg).getMessage());
                 }

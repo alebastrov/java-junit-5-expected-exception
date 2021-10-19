@@ -6,8 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.ANNOTATION_TYPE)
+@Target({ElementType.ANNOTATION_TYPE, ElementType.FIELD})
 public @interface ClassAndMessage {
-    Class clazz();
+    Class<? extends Throwable> clazz();
     String message();
 }

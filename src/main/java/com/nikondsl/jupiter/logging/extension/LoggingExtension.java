@@ -44,7 +44,7 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
                 continue;
             }
 
-            Class[] classesToHide = getHideByExceptionClassValue(field, null);
+            Class<? extends Throwable>[] classesToHide = getHideByExceptionClassValue(field, null);
             String[] messagesToHide = getHideByMessageValue(field, null);
             ClassAndMessage[] classAndMessageToHide = getHideByMessageAndClassValue(field, null);
 
@@ -91,7 +91,7 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
         return anno;
     }
 
-    private Class[] getHideByExceptionClassValue(Field field, Class clazz) {
+    private Class<? extends Throwable>[] getHideByExceptionClassValue(Field field, Class clazz) {
         if (field != null && field.isAnnotationPresent(HideByExceptionClass.class)) {
             return field.getAnnotation(HideByExceptionClass.class).value();
         }
@@ -121,7 +121,7 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
         return null;
     }
 
-    private boolean lookForAndReplaceLogger(Class[] classesToHide,
+    private boolean lookForAndReplaceLogger(Class<? extends Throwable>[] classesToHide,
                                             String[] messagesToHide,
                                             ClassAndMessage[] classAndMessageToHide,
                                             Object toInjectNewLogger) throws ReflectiveOperationException {
@@ -164,7 +164,7 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
                              Field field,
                              Object toInjectNewLogger,
                              LoggingSupported loggerAdapter,
-                             Class[] classesToHide,
+                             Class<? extends Throwable>[] classesToHide,
                              String[] messagesToHide,
                              ClassAndMessage[] classAndMessageToHide) throws ReflectiveOperationException {
         LOG.debug("Setting up logger into '" + className +
