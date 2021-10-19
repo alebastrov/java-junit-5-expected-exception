@@ -16,33 +16,45 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class AbstractLoggerAdapter {
-    private static List<LoggingSupported> registeredAdapters = new ArrayList<>();
-    private static AbstractLoggerAdapter instance = new AbstractLoggerAdapter();
+public class LoggerAdapterRepository {
+    static List<LoggingSupported> registeredAdaptors = new ArrayList<>();
+    private static LoggerAdapterRepository instance = new LoggerAdapterRepository();
     private AtomicBoolean suspendLogic = new AtomicBoolean();
 
     static {
-        registeredAdapters.add(new Slf4JLoggerAdapter(null, instance));
-        registeredAdapters.add(new Log4jLoggerAdapter(null, instance));
-        registeredAdapters.add(new Log4j2LoggerAdapter(instance));
+        registeredAdaptors.add(new Slf4JLoggerAdapter(null, instance));
+        registeredAdaptors.add(new Log4jLoggerAdapter(null, instance));
+        registeredAdaptors.add(new Log4j2LoggerAdapter(instance));
     }
 
     public static LoggingSupported createAdapter(Object logger) {
-        Optional found = registeredAdapters
+        final Exception[] exceptios = new Exception[1];
+        Optional found = registeredAdaptors
             .stream()
-            .filter(adapter -> adapter.isClassAcceptableForReplacing(logger.getClass().getCanonicalName()))
+            .filter(adaptor -> adaptor.isClassAcceptableForReplacing(logger.getClass().getCanonicalName()))
             .map(adapter -> {
                 try {
-                    Constructor constructor = adapter.getClass().getConstructor(Object.class, AbstractLoggerAdapter.class);
+                    Constructor constructor = adapter.getClass().getConstructor(Object.class, LoggerAdapterRepository.class);
                     return (LoggingSupported) constructor.newInstance(logger, instance);
                 } catch (ReflectiveOperationException e) {
-                    e.printStackTrace(System.err);
+                    if (exceptios[0] == null) {
+                        exceptios[0] = e;
+                    }
                 }
                 return null;
             })
             .filter(Objects::nonNull)
             .findAny();
-        return found.isPresent() ? (LoggingSupported) found.get() : null;
+        if (!found.isPresent()) {
+            String message = "Cannot find adaptor class for " + logger.getClass().getCanonicalName() +
+                    " The target adaptor class should implement 'LoggingSupported' interface and also should have " +
+                    "a public constructor with 2 arguments, Object.class and LoggerAdapterRepository.class";
+            if (exceptios[0] != null) {
+                throw new IllegalArgumentException(message, exceptios[0]);
+            }
+            throw new IllegalArgumentException(message);
+        }
+        return (LoggingSupported) found.get();
     }
 
     protected Set<Class> exceptionsToHide = Collections.emptySet();
@@ -50,7 +62,7 @@ public class AbstractLoggerAdapter {
     protected List<ClassAndMessage> classAndMessageToHide = Collections.emptyList();
 
     public static boolean isLoggerSupported(String className) {
-        Optional found = registeredAdapters
+        Optional found = registeredAdaptors
                 .stream()
                 .filter(adapter -> adapter.isClassAcceptableForReplacing(className))
                 .findAny();
@@ -128,5 +140,9 @@ public class AbstractLoggerAdapter {
             }
         }
         return result.toArray();
+    }
+
+    static LoggerAdapterRepository getInstance() {
+        return instance;
     }
 }

@@ -1,6 +1,6 @@
 package com.nikondsl.jupiter.logging.adapters.impl;
 
-import com.nikondsl.jupiter.logging.adapters.AbstractLoggerAdapter;
+import com.nikondsl.jupiter.logging.adapters.LoggerAdapterRepository;
 import com.nikondsl.jupiter.logging.adapters.LoggingSupported;
 import com.nikondsl.jupiter.logging.annotations.ClassAndMessage;
 import org.apache.logging.log4j.Level;
@@ -13,14 +13,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Log4j2LoggerAdapter extends Logger implements LoggingSupported {
     private Logger logger;
-    private AbstractLoggerAdapter delegate;
+    private LoggerAdapterRepository delegate;
 
-    public Log4j2LoggerAdapter(AbstractLoggerAdapter delegate) {
+    public Log4j2LoggerAdapter(LoggerAdapterRepository delegate) {
         super(new LoggerContext("Log4j2LoggerContext"), "Log4j2LoggerAdapter", null);
         this.delegate = delegate;
     }
 
-    public Log4j2LoggerAdapter(Object logger, AbstractLoggerAdapter delegate) {
+    public Log4j2LoggerAdapter(Object logger, LoggerAdapterRepository delegate) {
         super(((Logger) logger).getContext(),
         "Log4j2LoggerAdapter",
               ((Logger) logger).getMessageFactory());

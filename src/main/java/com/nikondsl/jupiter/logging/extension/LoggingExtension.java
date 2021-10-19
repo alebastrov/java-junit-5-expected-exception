@@ -1,7 +1,7 @@
 package com.nikondsl.jupiter.logging.extension;
 
 
-import com.nikondsl.jupiter.logging.adapters.AbstractLoggerAdapter;
+import com.nikondsl.jupiter.logging.adapters.LoggerAdapterRepository;
 import com.nikondsl.jupiter.logging.adapters.LoggingSupported;
 import com.nikondsl.jupiter.logging.annotations.ClassAndMessage;
 import com.nikondsl.jupiter.logging.annotations.ClassesToWrapLoggers;
@@ -139,7 +139,7 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
                 lookForLogger.getType().isEnum()) {
                 continue;
             }
-            if (!AbstractLoggerAdapter.isLoggerSupported(lookForLogger.getType().getCanonicalName())) {
+            if (!LoggerAdapterRepository.isLoggerSupported(lookForLogger.getType().getCanonicalName())) {
                 continue;
             }
             Object possibleLogger = lookForLogger.get(toInjectNewLogger);
@@ -216,7 +216,7 @@ public class LoggingExtension implements TestInstancePostProcessor, TestInstance
     }
 
     protected LoggingSupported createLoggerAdapter(Object logger) {
-        return AbstractLoggerAdapter.createAdapter(logger);
+        return LoggerAdapterRepository.createAdapter(logger);
     }
 
     static void trySetStaticField(String className,

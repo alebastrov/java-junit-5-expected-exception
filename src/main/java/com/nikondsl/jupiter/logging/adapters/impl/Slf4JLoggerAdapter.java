@@ -1,6 +1,6 @@
 package com.nikondsl.jupiter.logging.adapters.impl;
 
-import com.nikondsl.jupiter.logging.adapters.AbstractLoggerAdapter;
+import com.nikondsl.jupiter.logging.adapters.LoggerAdapterRepository;
 import com.nikondsl.jupiter.logging.adapters.LoggingSupported;
 import com.nikondsl.jupiter.logging.annotations.ClassAndMessage;
 import org.slf4j.Logger;
@@ -12,9 +12,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Slf4JLoggerAdapter implements LoggingSupported, org.slf4j.Logger {
 
     private Logger logger;
-    private AbstractLoggerAdapter delegate;
+    private LoggerAdapterRepository delegate;
 
-    public Slf4JLoggerAdapter(Object logger, AbstractLoggerAdapter delegate) {
+    public Slf4JLoggerAdapter(Object logger, LoggerAdapterRepository delegate) {
         this.logger = (Logger) logger;
         this.delegate = delegate;
     }
