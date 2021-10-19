@@ -14,8 +14,8 @@ public class Slf4JLoggerAdapter implements LoggingSupported, org.slf4j.Logger {
     private Logger logger;
     private AbstractLoggerAdapter delegate;
 
-    public Slf4JLoggerAdapter(Logger logger, AbstractLoggerAdapter delegate) {
-        this.logger = logger;
+    public Slf4JLoggerAdapter(Object logger, AbstractLoggerAdapter delegate) {
+        this.logger = (Logger) logger;
         this.delegate = delegate;
     }
 

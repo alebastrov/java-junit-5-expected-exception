@@ -19,9 +19,9 @@ public class Log4jLoggerAdapter extends Logger implements LoggingSupported {
     private Logger logger;
     private AbstractLoggerAdapter delegate;
 
-    public Log4jLoggerAdapter(Logger logger, AbstractLoggerAdapter delegate) {
+    public Log4jLoggerAdapter(Object logger, AbstractLoggerAdapter delegate) {
         super("Log4jLoggerAdapter");
-        this.logger = logger;
+        this.logger = (Logger) logger;
         this.delegate = delegate;
     }
 

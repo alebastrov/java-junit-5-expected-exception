@@ -7,8 +7,6 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.async.AsyncLoggerContext;
-import org.apache.logging.log4j.message.MessageFactory;
 
 import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -22,15 +20,18 @@ public class Log4j2LoggerAdapter extends Logger implements LoggingSupported {
         this.delegate = delegate;
     }
 
-    public Log4j2LoggerAdapter(Logger logger, AbstractLoggerAdapter delegate) {
-        super(logger.getContext(), "Log4j2LoggerAdapter", logger.getMessageFactory());
-        this.logger = logger;
+    public Log4j2LoggerAdapter(Object logger, AbstractLoggerAdapter delegate) {
+        super(((Logger) logger).getContext(),
+        "Log4j2LoggerAdapter",
+              ((Logger) logger).getMessageFactory());
+        this.logger = (Logger) logger;
         this.delegate = delegate;
     }
 
     @Override
     public boolean isClassAcceptableForReplacing(String className) {
-        return "org.apache.logging.log4j.Logger".equals(className);
+        return "org.apache.logging.log4j.Logger".equals(className) ||
+               "org.apache.logging.log4j.core.Logger".equals(className);
     }
 
     @Override

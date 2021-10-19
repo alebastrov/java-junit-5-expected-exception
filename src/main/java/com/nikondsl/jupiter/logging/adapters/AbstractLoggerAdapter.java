@@ -5,11 +5,13 @@ import com.nikondsl.jupiter.logging.adapters.impl.Log4jLoggerAdapter;
 import com.nikondsl.jupiter.logging.adapters.impl.Slf4JLoggerAdapter;
 import com.nikondsl.jupiter.logging.annotations.ClassAndMessage;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -26,16 +28,21 @@ public class AbstractLoggerAdapter {
     }
 
     public static LoggingSupported createAdapter(Object logger) {
-        if (logger instanceof org.slf4j.Logger) {
-            return new Slf4JLoggerAdapter((org.slf4j.Logger) logger, instance);
-        }
-        if (logger instanceof org.apache.log4j.Logger) {
-            return new Log4jLoggerAdapter((org.apache.log4j.Logger) logger, instance);
-        }
-        if (logger instanceof org.apache.logging.log4j.Logger) {
-            return new Log4j2LoggerAdapter((org.apache.logging.log4j.core.Logger) logger, instance);
-        }
-        return null;
+        Optional found = registeredAdapters
+            .stream()
+            .filter(adapter -> adapter.isClassAcceptableForReplacing(logger.getClass().getCanonicalName()))
+            .map(adapter -> {
+                try {
+                    Constructor constructor = adapter.getClass().getConstructor(Object.class, AbstractLoggerAdapter.class);
+                    return (LoggingSupported) constructor.newInstance(logger, instance);
+                } catch (ReflectiveOperationException e) {
+                    e.printStackTrace(System.err);
+                }
+                return null;
+            })
+            .filter(Objects::nonNull)
+            .findAny();
+        return found.isPresent() ? (LoggingSupported) found.get() : null;
     }
 
     protected Set<Class> exceptionsToHide = Collections.emptySet();
