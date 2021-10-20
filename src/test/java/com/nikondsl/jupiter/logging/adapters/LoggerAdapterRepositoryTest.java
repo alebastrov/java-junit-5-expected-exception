@@ -241,4 +241,26 @@ public class LoggerAdapterRepositoryTest {
 
         assertSame(exception, result);
     }
+
+    @Test
+    public void getSanitizedCopyExceptionMatchMessage() {
+        LoggerAdapterRepository.getInstance().setExceptionMessagesToHide(new String[] {"aaabbbccc"});
+        IllegalArgumentException exception = new IllegalArgumentException("aaabbbccc");
+
+        Object[] result = LoggerAdapterRepository.getInstance().getSanitizedCopy(new Object[] {
+                "start", exception, "end"
+        });
+
+        assertEquals(3, result.length);
+        assertEquals("start", result[0]);
+        assertEquals("java.lang.IllegalArgumentException is hidden by message:aaabbbccc", result[1]);
+        assertEquals("end", result[2]);
+    }
+
+    @Test
+    public void getSanitizedCopyNull() {
+        Object[] result = LoggerAdapterRepository.getInstance().getSanitizedCopy(null);
+
+        assertNull(result);
+    }
 }

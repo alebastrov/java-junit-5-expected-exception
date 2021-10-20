@@ -137,6 +137,9 @@ public class LoggerAdapterRepository {
     }
 
     public Object[] getSanitizedCopy(Object[] arguments) {
+        if (arguments == null) {
+            return null;
+        }
         List<Object> result = new ArrayList<>();
         for (Object obj : arguments) {
             if (obj instanceof Exception) {
