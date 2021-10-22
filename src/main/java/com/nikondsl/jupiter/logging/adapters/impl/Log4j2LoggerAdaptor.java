@@ -11,16 +11,16 @@ import org.apache.logging.log4j.core.LoggerContext;
 import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class Log4j2LoggerAdapter extends Logger implements LoggingSupported {
+public class Log4j2LoggerAdaptor extends Logger implements LoggingSupported {
     private Logger logger;
     private LoggerAdapterRepository delegate;
 
-    public Log4j2LoggerAdapter(LoggerAdapterRepository delegate) {
+    public Log4j2LoggerAdaptor(LoggerAdapterRepository delegate) {
         super(new LoggerContext("Log4j2LoggerContext"), "Log4j2LoggerAdapter", null);
         this.delegate = delegate;
     }
 
-    public Log4j2LoggerAdapter(Object logger, LoggerAdapterRepository delegate) {
+    public Log4j2LoggerAdaptor(Object logger, LoggerAdapterRepository delegate) {
         super(((Logger) logger).getContext(),
         "Log4j2LoggerAdapter",
               ((Logger) logger).getMessageFactory());

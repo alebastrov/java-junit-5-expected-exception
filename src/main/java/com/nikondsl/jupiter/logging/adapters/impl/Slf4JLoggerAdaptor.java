@@ -9,19 +9,20 @@ import org.slf4j.Marker;
 import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class Slf4JLoggerAdapter implements LoggingSupported, org.slf4j.Logger {
+public class Slf4JLoggerAdaptor implements LoggingSupported, org.slf4j.Logger {
 
     private Logger logger;
     private LoggerAdapterRepository delegate;
 
-    public Slf4JLoggerAdapter(Object logger, LoggerAdapterRepository delegate) {
+    public Slf4JLoggerAdaptor(Object logger, LoggerAdapterRepository delegate) {
         this.logger = (Logger) logger;
         this.delegate = delegate;
     }
 
     @Override
     public boolean isClassAcceptableForReplacing(String className) {
-        return "org.slf4j.Logger".equals(className);
+        return "org.slf4j.Logger".equals(className) ||
+               "org.apache.logging.slf4j.Log4jLogger".equals(className);
     }
 
     @Override

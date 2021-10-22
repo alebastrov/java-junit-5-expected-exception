@@ -1,7 +1,7 @@
 package com.nikondsl.jupiter.logging.adapters;
 
 import com.nikondsl.jupiter.logging.annotations.ClassAndMessage;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,9 +9,6 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.annotation.Annotation;
-import java.lang.annotation.ElementType;
-import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,64 +41,7 @@ public class LoggerAdapterRepositoryTest {
         }
     };
 
-    static class SimpleLoggerAdapter implements LoggingSupported {
-        private Object logger = null;
-        private LoggerAdapterRepository delegate;
-        private Class[] classesValues = null;
-        private String[] stringValues = null;
-        private ClassAndMessage[] values = null;
-        private AtomicBoolean suspendLogging = new AtomicBoolean();
-
-        public SimpleLoggerAdapter(Object logger, LoggerAdapterRepository delegate) {
-            this.logger = logger;
-            this.delegate = delegate;
-        }
-
-        @Override
-        public boolean isClassAcceptableForReplacing(String className) {
-            return getClass().getCanonicalName().equalsIgnoreCase(className);
-        }
-
-        @Override
-        public void setExceptionClassesToHide(Class[] values) {
-            this.classesValues = values;
-        }
-
-        @Override
-        public void setExceptionMessagesToHide(String[] values) {
-            this.stringValues = values;
-        }
-
-        @Override
-        public void setExceptionClassAndMessageToHide(ClassAndMessage[] values) {
-            this.values = values;
-        }
-
-        @Override
-        public void setSuspendLogging(AtomicBoolean suspendLogging) {
-            this.suspendLogging = suspendLogging;
-        }
-
-        @Override
-        public Object sanitize(Object arg) {
-            if (arg instanceof Exception) {
-                return arg;
-            }
-            return "sanitized[" + arg + "]";
-        }
-
-        @Override
-        public Object[] getSanitizedCopy(Object[] arguments) {
-            return Arrays.copyOf(arguments, arguments.length);
-        }
-
-        @Override
-        public void unwrap(Field field, Object key) throws ReflectiveOperationException {
-            field.set(key, logger);
-        }
-    }
     static class NoValidConstructorAdapter extends SimpleLoggerAdapter implements LoggingSupported {
-
         public NoValidConstructorAdapter(LoggerAdapterRepository delegate) {
             super(null, delegate);
         }
@@ -110,19 +50,28 @@ public class LoggerAdapterRepositoryTest {
     @Spy
     private LoggerAdapterRepository repository;
 
-    @AfterEach
-    public void tearDown() {
+    @BeforeEach
+    public void setUp() {
+        clear();
+    }
+
+    private static void clear() {
         LoggerAdapterRepository.getInstance().setSuspendLogic(new AtomicBoolean(false));
         LoggerAdapterRepository.getInstance().setExceptionClassesToHide(null);
         LoggerAdapterRepository.getInstance().setExceptionMessagesToHide(null);
         LoggerAdapterRepository.getInstance().setExceptionClassAndMessageToHide(null);
     }
 
+    @AfterAll
+    public static void tearDown() {
+        clear();
+    }
+
     @Test
     public void testCreate() {
-        LoggerAdapterRepository.registeredAdaptors.add(new SimpleLoggerAdapter(null, LoggerAdapterRepository.getInstance()));
+        LoggerAdapterRepository.addToRegisteredAdaptors(new SimpleLoggerAdapter(null, LoggerAdapterRepository.getInstance()));
 
-        Object adapter = LoggerAdapterRepository.createAdapter(log1);
+        Object adapter = LoggerAdapterRepository.createAdaptor(log1);
 
         assertNotNull(adapter);
         assertEquals(log1.getClass().getCanonicalName(), adapter.getClass().getCanonicalName());
@@ -130,14 +79,14 @@ public class LoggerAdapterRepositoryTest {
 
     @Test
     public void testCreateBad() {
-        LoggerAdapterRepository.registeredAdaptors.add(new NoValidConstructorAdapter(LoggerAdapterRepository.getInstance()));
+        LoggerAdapterRepository.addToRegisteredAdaptors(new NoValidConstructorAdapter(LoggerAdapterRepository.getInstance()));
 
-        assertThrows(IllegalArgumentException.class, () -> LoggerAdapterRepository.createAdapter(log2));
+        assertThrows(IllegalArgumentException.class, () -> LoggerAdapterRepository.createAdaptor(log2));
     }
 
     @Test
     public void isLoggerSupported() {
-        LoggerAdapterRepository.registeredAdaptors.add(new SimpleLoggerAdapter(null, LoggerAdapterRepository.getInstance()));
+        LoggerAdapterRepository.addToRegisteredAdaptors(new SimpleLoggerAdapter(null, LoggerAdapterRepository.getInstance()));
 
         assertTrue(LoggerAdapterRepository.isLoggerSupported(log1.getClass().getCanonicalName()));
         assertFalse(LoggerAdapterRepository.isLoggerSupported(log2.getClass().getCanonicalName()));
@@ -167,7 +116,7 @@ public class LoggerAdapterRepositoryTest {
     }
 
     @Test
-    public void sanitizeExceptionMatchException() {
+    public void sanitizeExceptionMatchesException() {
         LoggerAdapterRepository.getInstance().setExceptionClassesToHide(new Class[] {IllegalArgumentException.class});
         IllegalArgumentException exception = new IllegalArgumentException("abc");
 
@@ -187,7 +136,7 @@ public class LoggerAdapterRepositoryTest {
     }
 
     @Test
-    public void sanitizeExceptionMatchExceptionAndMessage() {
+    public void sanitizeExceptionMatchesExceptionAndMessage() {
         LoggerAdapterRepository.getInstance().setExceptionClassAndMessageToHide(new ClassAndMessage[] {
             anno
         });
@@ -206,7 +155,6 @@ public class LoggerAdapterRepositoryTest {
         IllegalArgumentException exception = new IllegalArgumentException("abc");
 
         Exception result = (Exception) LoggerAdapterRepository.getInstance().sanitize(exception);
-
         assertSame(exception, result);
     }
 
@@ -223,7 +171,7 @@ public class LoggerAdapterRepositoryTest {
     }
 
     @Test
-    public void sanitizeExceptionMatchMessage() {
+    public void sanitizeExceptionMatchesMessage() {
         LoggerAdapterRepository.getInstance().setExceptionMessagesToHide(new String[] {"aaabbbccc"});
         IllegalArgumentException exception = new IllegalArgumentException("aaabbbccc");
 
@@ -243,7 +191,7 @@ public class LoggerAdapterRepositoryTest {
     }
 
     @Test
-    public void getSanitizedCopyExceptionMatchMessage() {
+    public void getSanitizedCopyExceptionMatchesMessage() {
         LoggerAdapterRepository.getInstance().setExceptionMessagesToHide(new String[] {"aaabbbccc"});
         IllegalArgumentException exception = new IllegalArgumentException("aaabbbccc");
 

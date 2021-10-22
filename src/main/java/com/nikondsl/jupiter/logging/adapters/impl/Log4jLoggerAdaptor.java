@@ -15,11 +15,11 @@ import java.util.Enumeration;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class Log4jLoggerAdapter extends Logger implements LoggingSupported {
+public class Log4jLoggerAdaptor extends Logger implements LoggingSupported {
     private Logger logger;
     private LoggerAdapterRepository delegate;
 
-    public Log4jLoggerAdapter(Object logger, LoggerAdapterRepository delegate) {
+    public Log4jLoggerAdaptor(Object logger, LoggerAdapterRepository delegate) {
         super("Log4jLoggerAdapter");
         this.logger = (Logger) logger;
         this.delegate = delegate;

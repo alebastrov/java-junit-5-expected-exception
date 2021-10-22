@@ -4,13 +4,13 @@ import com.nikondsl.jupiter.logging.annotations.ClassAndMessage;
 import com.nikondsl.jupiter.logging.annotations.ClassesToWrapLoggers;
 import com.nikondsl.jupiter.logging.annotations.HideByExceptionClassAndMessage;
 import com.nikondsl.jupiter.logging.extension.LoggingExtension;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * This class demonstrates how to hide ALL exceptions from logs if all of them are expected during testing.
@@ -41,6 +41,4 @@ public class ReplaceOutsideDemoTest {
                 () -> hoursHelper.process(x -> { throw new IllegalArgumentException("Error: obvious"); }, 0.0)
         );
     }
-
-
 }
