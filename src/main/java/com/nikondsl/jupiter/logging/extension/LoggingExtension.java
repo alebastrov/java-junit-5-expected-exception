@@ -56,9 +56,6 @@ public class LoggingExtension implements TestInstancePostProcessor, AfterAllCall
         }
         initialized.set(true);
         Class clazz = testInstance.getClass();
-        if (!clazz.getCanonicalName().contains("ReplaceOutsideDemoTest")) {
-            return;
-        }
         toRevert.clear();
         for (Field field : clazz.getDeclaredFields()) {
             if (!suspendLogging.get() &&
@@ -214,7 +211,7 @@ public class LoggingExtension implements TestInstancePostProcessor, AfterAllCall
                              Object toInjectNewLogger,
                              LoggingSupported loggerAdapter,
                              ExtensionParams params) throws ReflectiveOperationException {
-        LOG.trace("Setting up logger into '" + className +
+        LOG.debug("Setting up logger into '" + className +
                 "." + field.getName() + "' with " + parameters(null, null, null, params));
         loggerAdapter.setSuspendLogging(suspendLogging);
         loggerAdapter.setExceptionClassesToHide(params.hideByClass);
@@ -289,7 +286,7 @@ public class LoggingExtension implements TestInstancePostProcessor, AfterAllCall
             }
             return;
         }
-        LOG.debug("New Logger is setting up for field '" + field.getName() + "' in class: " +
+        LOG.debug("New Logger is set up for field '" + field.getName() + "' in class: " +
                 toInjectNewLogger.getClass().getCanonicalName());
         field.set(toInjectNewLogger, newValue);
         addToRevert(toInjectNewLogger, field);
