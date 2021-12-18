@@ -1,10 +1,10 @@
-This project based on Junit5 (SLF4J or Log4J or even Log4j2 by your choice) helps you with garbage 
+This project based on Junit5 (SLF4J or Log4J or even Log4j2 - it's up to you) and helps you removing garbage 
 in logs while running tests.
 
-If your test expects some exception (negative path testing) you probably will want not to see them 
-in logs in order to have them clear
+If your test expects some exception (negative path testing) you probably will want not to have them 
+collected in logs in order to have them clear
 
-All you should do is just add @ExtendWith annotations to your test class and one of the following:
+All you need is just add @ExtendWith annotations to your test class and one of the following:
 - add annotation @HideByExceptionClass (*)
 - add annotation @HideByExceptionMessage (*)
 - add annotation @HideByExceptionClassAndMessage (*)
