@@ -4,7 +4,6 @@ import com.nikondsl.jupiter.logging.annotations.ClassAndMessage;
 import com.nikondsl.jupiter.logging.annotations.ClassesToWrapLoggers;
 import com.nikondsl.jupiter.logging.annotations.HideByExceptionClassAndMessage;
 import com.nikondsl.jupiter.logging.extension.LoggingExtension;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

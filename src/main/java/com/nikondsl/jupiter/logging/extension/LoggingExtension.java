@@ -79,9 +79,9 @@ public class LoggingExtension implements TestInstancePostProcessor, AfterAllCall
             // look for 'org.slf4j.Logger' there
             if (toInjectNewLogger == null) {
                 LOG.error("Field with annotation @" + anno + " is not initialized now");
-                throw new IllegalStateException("@" + anno + " annotated field (" + field.getName() + ") is null");
+                throw new IllegalStateException("@" + anno + " annotated field (" + field.getName() + ") is null." +
+                        "Make sure that annotated field is not a @Spy");
             }
-
             if (!lookForAndReplaceLogger(params, toInjectNewLogger)) {
                 LOG.warn("Logger field is not found in class: " + toInjectNewLogger.getClass().getCanonicalName());
             }
